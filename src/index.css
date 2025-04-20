@@ -1,0 +1,316 @@
+/* Global background & font setup */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: url('https://images.unsplash.com/photo-1555424221-250de2a343ad?fm=jpg&q=60&w=3000&ixlib=rb-4.0.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGl0dHNidXJnaHxlbnwwfHwwfHx8MA%3D%3D') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+}
+
+/* Overlay to darken the background for readability */
+.overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+  min-height: 100vh;
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* Main heading */
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.2rem;
+  margin-bottom: 0.5rem;
+  color: #FFD700;
+  letter-spacing: 1px;
+}
+
+/* Subheading */
+h2 {
+  font-weight: 400;
+  margin-bottom: 1.25rem;
+  margin-top: -0.5rem;
+  color: white;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  margin-bottom: 1.25rem;
+  margin-top: 2rem;
+  color: #FFD700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.5px;
+}
+
+label {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  display: block;
+  color: #eee;
+  font-size: 1.25rem;
+}
+
+input[type="email"] {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: none;
+  width: 100%;
+  max-width: 320px;
+  font-size: 1rem;
+  text-align: center;
+  background: #111;
+  color: white;
+  outline: none;
+  border: 1px solid #444;
+  margin-bottom: 1rem;
+}
+
+button.submit-button {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  background-color: #FFD700;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+button.submit-button:hover {
+  background-color: white;
+  color: black;
+  transform: scale(1.05);
+}
+
+.grid-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.link-button,
+.history-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem 2rem;
+  min-height: 80px;
+  font-size: 1.15rem;
+  font-weight: 500;
+  border-radius: 14px;
+  text-decoration: none;
+  color: white;
+  border: 2px solid transparent;
+  background-color: rgba(0, 0, 0, 0.5);
+  transition: all 0.25s ease;
+  text-align: center;
+  flex-direction: column;
+}
+
+.link-button:hover,
+.history-button:hover {
+  background-color: #FFD700;
+  color: #000;
+  transform: scale(1.03);
+  box-shadow: 0 0 10px #FFD70066;
+  border-color: #FFD700;
+}
+
+.history-button {
+  padding: 0.75rem 2rem;
+  height: auto;
+}
+
+.link-button.current {
+  box-shadow: 0 0 12px 3px #00FFD0;
+  border-color: #00FFD0;
+}
+
+.link-button.upcoming {
+  opacity: 1;
+  border-color: #444;
+}
+
+.link-button.closed {
+  opacity: 0.5;
+}
+
+.link-button.closed:hover {
+  background-color: #FFD700;
+  color: #000;
+  transform: scale(1.03);
+  box-shadow: 0 0 10px #FFD70066;
+  border-color: #FFD700;
+}
+
+.status-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  color: #FFD700;
+}
+
+/* Leaderboard page */
+.leaderboard-wrapper.dark {
+  background-color: rgba(0, 0, 0, 0.75);
+  min-height: 100vh;
+  padding: 2rem;
+  color: #f5f5f5;
+}
+
+/* ✅ New top-right nav layout (MyTeams-style) */
+.nav-buttons {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+
+.nav-btn {
+  background-color: #FFD700;
+  color: #000;
+  padding: 0.6rem 1.2rem;
+  font-weight: 600;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.nav-btn:hover {
+  background-color: white;
+  color: black;
+}
+
+.refresh-bar {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-bottom: 1.5rem;
+}
+
+.leaderboard-grid {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .leaderboard-grid {
+    flex-direction: row;
+  }
+  .standings-box {
+    width: 75%;
+  }
+  .masters-box {
+    width: 25%;
+  }
+}
+
+.standings-box,
+.masters-box {
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 1rem;
+  background-color: rgba(26, 26, 26, 0.85);
+}
+
+.text-header {
+  color: #FFD700;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.collapse-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  background-color: #FFD700;
+  font-weight: bold;
+  border-radius: 999px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.collapse-btn:hover {
+  background-color: white;
+  color: black;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.standings-table,
+.masters-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  background-color: transparent;
+  color: white;
+}
+
+.standings-table th,
+.standings-table td,
+.masters-table td {
+  padding: 6px 8px;
+  text-align: center;
+  border: none;
+}
+
+.group-header th {
+  background-color: #111;
+  color: #FFD700;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* ✅ Yellow vertical lines */
+.border-r-yellow {
+  position: relative;
+}
+.border-r-yellow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background-color: #FFD700;
+  opacity: 0.7;
+}
+
+/* ✅ Yellow header underline */
+.border-b-yellow {
+  border-bottom: 0.5px solid #FFD700;
+}
+
+/* ✅ Thin white horizontal dividers between teams */
+.team-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ✅ Subtle row borders for right panel */
+.masters-table td {
+  border-bottom: 0.25px solid rgba(255, 255, 255, 0.1);
+}
+
+.loading-text {
+  color: #888;
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+/* ✅ Blue glow for current tournament card */
+.glow-border {
+  box-shadow: 0 0 12px 4px #00FFD0 !important;
+  border-color: #00FFD0 !important;
+}
