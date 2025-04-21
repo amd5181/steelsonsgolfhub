@@ -16,7 +16,7 @@ export default function MyTeams() {
     Masters: new Date("2025-04-10T10:00:00-04:00"),
     PGA: new Date("2025-05-15T10:00:00-04:00"),
     "US Open": new Date("2025-06-12T10:00:00-04:00"),
-    "The Open": new Date("2025-07-17T10:00:00-02:00"),
+    "The Open": new Date("2025-07-17T10:00:00-04:00"),
   };
 
   useEffect(() => {
@@ -62,13 +62,11 @@ export default function MyTeams() {
     );
   }, [email]);
 
-  // get the status for current, upcoming, and closed tournaments
   const getTournamentStatuses = () => {
     const statuses = {};
-    const tournaments = ["Masters", "PGA", "US Open", "The Open"];
     let currentSet = false;
 
-    tournaments.forEach((tournament) => {
+    TOURNAMENTS.forEach((tournament) => {
       const cutoff = cutoffTimes[tournament];
       const cutoffPlus7 = new Date(cutoff.getTime() + 7 * 24 * 60 * 60 * 1000);
 
@@ -81,6 +79,7 @@ export default function MyTeams() {
         statuses[tournament] = "upcoming";
       }
     });
+
     return statuses;
   };
 
@@ -93,13 +92,13 @@ export default function MyTeams() {
           width: "100%",
           maxWidth: "1200px",
           display: "flex",
-          justifyContent: "space-between",
+          flexDirection: "column",
           alignItems: "center",
           marginBottom: "2rem",
         }}
       >
         <h1 style={styles.title}>Steel Sons Golf Hub</h1>
-        <div style={{ display: "flex", gap: "1rem" }}>
+        <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
           <Link to="/" style={styles.navLink}>Home</Link>
           <Link to="/history" style={styles.navLink}>History</Link>
         </div>
@@ -142,14 +141,7 @@ export default function MyTeams() {
                 {status === "upcoming" ? (
                   <span style={styles.upcomingStatus}>Upcoming</span>
                 ) : now < cutoffTimes[tournament] ? (
-                  <a
-                    href={formLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={styles.edit}
-                  >
-                    Enter/Edit
-                  </a>
+                  <a href={formLink} target="_blank" rel="noreferrer" style={styles.edit}>Enter/Edit</a>
                 ) : (
                   <span style={styles.closed}>Entries Closed</span>
                 )}
@@ -168,7 +160,6 @@ export default function MyTeams() {
 
 function TeamList({ teamName, players }) {
   const hasEntry = players.length === 5;
-
   return (
     <div>
       <p style={styles.teamLabel}>{teamName}</p>
@@ -191,6 +182,7 @@ const styles = {
     fontSize: "2rem",
     color: "#FFD700",
     margin: 0,
+    textAlign: "center",
     textShadow: "1px 1px 2px rgba(0,0,0,0.6)",
   },
   navLink: {
@@ -202,20 +194,18 @@ const styles = {
     border: "1px solid #FFD700",
     borderRadius: "6px",
     transition: "all 0.2s ease",
-    textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
   },
   emailHeader: {
     color: "white",
-    fontSize: "1.25rem",
+    fontSize: "1.1rem",
     marginBottom: "2rem",
     fontWeight: 500,
-    textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+    textAlign: "center",
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "2rem",
-    width: "100%",
+    gridTemplateColumns: "1fr",
+    gap: "1.5rem",
     maxWidth: "1000px",
     margin: "0 auto",
   },
@@ -227,55 +217,43 @@ const styles = {
     color: "white",
   },
   cardTitle: {
-    marginTop: 0,
-    fontSize: "1.3rem",
+    fontSize: "1.2rem",
     color: "#FFD700",
     marginBottom: "1rem",
-    textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
   },
   statusTag: {
     fontSize: "0.8rem",
-    fontWeight: "bold",
     color: "#00FFD0",
-    marginLeft: "0.75rem",
-    textShadow: "0 0 4px #00FFD0",
+    marginLeft: "0.5rem",
   },
   upcomingStatus: {
     fontSize: "0.9rem",
     color: "#888",
     fontStyle: "italic",
-    textAlign: "right",
-    display: "block",
-    marginTop: "0.25rem",
+    float: "right",
   },
   edit: {
     fontSize: "0.9rem",
-    fontWeight: "400",
     color: "#ccc",
     float: "right",
-    cursor: "pointer",
-    textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
   },
   closed: {
     fontSize: "0.9rem",
     color: "#888",
     float: "right",
-    fontStyle: "italic",
   },
   teamRow: {
     display: "flex",
-    justifyContent: "space-between",
-    gap: "1rem",
+    flexDirection: "row",  // updated for 2x2 grid layout
+    gap: "2rem",
   },
   teamLabel: {
     fontWeight: "bold",
     color: "#4CAF50",
     marginBottom: "0.5rem",
-    textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
   },
   player: {
     color: "#ddd",
     marginBottom: "0.3rem",
-    textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
   },
 };

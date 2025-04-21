@@ -23,9 +23,7 @@ export default function TeamEntryForm() {
     fetch(`${scriptUrl}?mode=entries&tournament=${encodeURIComponent(tournament)} Entries&email=${encodeURIComponent(email)}`)
       .then(res => res.json())
       .then(data => {
-        if (!data || data.length === 0) {
-          setShowNameField(true);
-        }
+        if (!data || data.length === 0) setShowNameField(true);
 
         const t1 = data.filter(d => d.team === 1).map(d => d.golfer.replace(" (2)", ""));
         const t2 = data.filter(d => d.team === 2).map(d => d.golfer.replace(" (2)", ""));
@@ -45,6 +43,7 @@ export default function TeamEntryForm() {
   const getTeamSalary = (team) => {
     return team.reduce((sum, name) => {
       const match = golfers.find(g => g.name === name);
+      return sum + (match ? parseInt(match.salary) : 0);
     }, 0);
   };
 
@@ -89,87 +88,106 @@ export default function TeamEntryForm() {
     (team2.includes(name) && teamIndex === 1);
 
   return (
-    <div className="min-h-screen bg-black text-white px-6 py-12">
-      <h1 className="text-4xl font-bold text-yellow-400 text-center mb-2">Steel Sons Golf Hub</h1>
-      <p className="text-center text-white text-sm mb-6">
+    <div className="overlay">
+      <h1>Steel Sons Golf Hub</h1>
+      <p style={{ textAlign: "center", color: "#ccc", marginBottom: "2rem" }}>
         {tournament} — {email}
       </p>
 
       {showNameField && (
-        <div className="max-w-md mx-auto mb-8">
-          <label className="block text-yellow-400 font-semibold mb-1">Full Name</label>
+        <div style={{ maxWidth: 400, margin: "0 auto", marginBottom: "2rem" }}>
+          <label>Full Name</label>
           <input
             type="text"
-            className="w-full px-4 py-2 rounded bg-black border border-yellow-400 text-white"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="e.g. Andrew David"
+            style={{
+              width: "100%",
+              padding: "0.75rem",
+              borderRadius: "8px",
+              backgroundColor: "#111",
+              border: "1px solid #FFD700",
+              color: "#fff"
+            }}
           />
         </div>
       )}
 
-      <div className="flex flex-wrap gap-6 justify-center mb-12">
-        <div className="bg-zinc-900 p-6 rounded-lg w-full max-w-md border border-yellow-400">
-          <h2 className="text-xl text-yellow-400 font-bold mb-4">Team 1</h2>
-          {team1.map((val, i) => (
-            <select
-              key={i}
-              value={val}
-              onChange={(e) => handleChange(1, i, e.target.value)}
-              className="w-full mb-3 px-3 py-2 rounded bg-black border border-gray-600 text-white"
-            >
-              <option value="">Select Golfer</option>
-              {golfers.map((g) => (
-                <option
-                  key={g.name}
-                  value={g.name}
-                  disabled={isDisabled(1, g.name)}
-                >
-                  {g.name} (${parseInt(g.salary).toLocaleString()})
-                </option>
-              ))}
-            </select>
-          ))}
-          <p className={`mt-2 font-bold ${getTeamSalary(team1) > SALARY_CAP ? "text-red-400" : "text-yellow-400"}`}>
-            Salary: ${getTeamSalary(team1).toLocaleString()} / $1,000,000
-          </p>
-        </div>
-
-        <div className="bg-zinc-900 p-6 rounded-lg w-full max-w-md border border-yellow-400">
-          <h2 className="text-xl text-yellow-400 font-bold mb-4">Team 2</h2>
-          {team2.map((val, i) => (
-            <select
-              key={i}
-              value={val}
-              onChange={(e) => handleChange(2, i, e.target.value)}
-              className="w-full mb-3 px-3 py-2 rounded bg-black border border-gray-600 text-white"
-            >
-              <option value="">Select Golfer</option>
-              {golfers.map((g) => (
-                <option
-                  key={g.name}
-                  value={g.name}
-                  disabled={isDisabled(2, g.name)}
-                >
-                  {g.name} (${parseInt(g.salary).toLocaleString()})
-                </option>
-              ))}
-            </select>
-          ))}
-          <p className={`mt-2 font-bold ${getTeamSalary(team2) > SALARY_CAP ? "text-red-400" : "text-yellow-400"}`}>
-            Salary: ${getTeamSalary(team2).toLocaleString()} / $1,000,000
-          </p>
-        </div>
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "2rem", marginBottom: "2rem" }}>
+        <TeamSelector
+          teamNumber={1}
+          team={team1}
+          handleChange={handleChange}
+          getTeamSalary={getTeamSalary}
+          golfers={golfers}
+          isDisabled={isDisabled}
+        />
+        <TeamSelector
+          teamNumber={2}
+          team={team2}
+          handleChange={handleChange}
+          getTeamSalary={getTeamSalary}
+          golfers={golfers}
+          isDisabled={isDisabled}
+        />
       </div>
 
-      <div className="text-center">
-        <button
-          onClick={handleSubmit}
-          className="bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-3 font-semibold rounded"
-        >
+      <div style={{ textAlign: "center" }}>
+        <button onClick={handleSubmit} className="submit-button">
           Submit Teams
         </button>
       </div>
+    </div>
+  );
+}
+
+function TeamSelector({ teamNumber, team, handleChange, getTeamSalary, golfers, isDisabled }) {
+  return (
+    <div style={{
+      backgroundColor: "rgba(255,255,255,0.05)",
+      padding: "1.25rem",
+      borderRadius: "12px",
+      border: "1px solid #FFD700",
+      width: "100%",
+      maxWidth: "400px"
+    }}>
+      <h2 style={{ color: "#FFD700", textAlign: "center", marginBottom: "1rem" }}>
+        Team {teamNumber}
+      </h2>
+
+      {team.map((val, i) => (
+        <select
+          key={i}
+          value={val}
+          onChange={(e) => handleChange(teamNumber, i, e.target.value)}
+          style={{
+            width: "100%",
+            padding: "0.5rem",
+            marginBottom: "0.75rem",
+            borderRadius: "8px",
+            backgroundColor: "#111",
+            color: "#fff",
+            border: "1px solid #444"
+          }}
+        >
+          <option value="">Select Golfer</option>
+          {golfers.map((g) => (
+            <option key={g.name} value={g.name} disabled={isDisabled(teamNumber, g.name)}>
+              {g.name} (${parseInt(g.salary).toLocaleString()})
+            </option>
+          ))}
+        </select>
+      ))}
+
+      <p style={{
+        marginTop: "1rem",
+        textAlign: "center",
+        fontWeight: "bold",
+        color: getTeamSalary(team) > SALARY_CAP ? "#ff4d4d" : "#FFD700"
+      }}>
+        Salary: ${getTeamSalary(team).toLocaleString()} / $1,000,000
+      </p>
     </div>
   );
 }

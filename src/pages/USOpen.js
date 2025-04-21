@@ -22,7 +22,6 @@ export default function USOpenLeaderboard() {
 
   const fetchData = () => {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodedRange}?key=${API_KEY}`;
-
     fetch(url, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
@@ -68,62 +67,48 @@ export default function USOpenLeaderboard() {
   }, []);
 
   return (
-    <div className="leaderboard-wrapper dark" style={{ position: "relative" }}>
-      {/* Home / History nav buttons */}
+    <div className="leaderboard-wrapper dark" style={{ position: "relative", padding: "1rem" }}>
       <div style={{ position: "absolute", top: "1rem", right: "1.5rem", display: "flex", gap: "0.75rem" }}>
         <Link to="/" style={navLinkStyle}>Home</Link>
         <Link to="/history" style={navLinkStyle}>History</Link>
       </div>
 
-      {/* Title */}
-      <div style={{ textAlign: "center", marginTop: "2.5rem", marginBottom: "1rem" }}>
-        <h1 style={{ fontSize: "2.8rem", fontWeight: 700, color: "#FFD700", margin: 0, textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
-          Steel Sons
-        </h1>
-        <h2 style={{ fontSize: "1.4rem", fontWeight: 400, color: "white", marginTop: "0.25rem", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
+      <div style={{ textAlign: "center", marginTop: "3.5rem", marginBottom: "1rem" }}>
+        <h1 style={{ fontSize: "2.2rem", fontWeight: 700, color: "#FFD700", margin: 0 }}>Steel Sons</h1>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: 400, color: "white", marginTop: "0.25rem" }}>
           US Open Leaderboard
         </h2>
       </div>
 
       {tournamentStarted ? (
         <>
-          <div className="refresh-bar">
+          <div className="refresh-bar" style={{ textAlign: "center", marginBottom: "1rem", fontSize: "0.85rem", color: "#ccc" }}>
             Last updated: {lastUpdated} — Refreshing in {refreshCountdown}s
           </div>
 
-          <div className="leaderboard-grid">
+          <div className="leaderboard-grid" style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
             <div className="standings-box">
-              <h2 className="text-header">Real-Time Standings</h2>
-              <button onClick={() => setCollapsed(!collapsed)} className="collapse-btn">
+              <h2 className="text-header" style={{ color: "#FFD700", fontSize: "1.25rem", marginBottom: "0.5rem" }}>
+                Real-Time Standings
+              </h2>
+              <button onClick={() => setCollapsed(!collapsed)} className="collapse-btn" style={collapseBtnStyle}>
                 {collapsed ? "Expand View" : "Collapse View"}
               </button>
 
               {mainData.length > 2 ? (
-                <div className="table-wrapper">
-                  <table className="standings-table">
+                <div className="table-wrapper" style={{ overflowX: "auto" }}>
+                  <table className="standings-table" style={tableStyle}>
                     <thead>
                       {!collapsed && (
-                        <tr className="group-header">
+                        <tr style={groupHeaderStyle}>
                           {mainData[1]?.slice(0, 12).map((_, j) => {
-                            if (j === 6) {
-                              return (
-                                <th key="completed-header" colSpan={4}>
-                                  Completed Rounds
-                                </th>
-                              );
-                            }
-                            if (j === 10) {
-                              return (
-                                <th key="current-header" colSpan={2}>
-                                  Current Round
-                                </th>
-                              );
-                            }
+                            if (j === 6) return <th key="completed-header" colSpan={4}>Completed Rounds</th>;
+                            if (j === 10) return <th key="current-header" colSpan={2}>Current Round</th>;
                             return j < 6 ? <th key={j}></th> : null;
                           })}
                         </tr>
                       )}
-                      <tr className="group-header border-b-yellow">
+                      <tr style={groupHeaderStyle}>
                         {(collapsed ? [0, 1, 4] : Array.from({ length: 12 }, (_, j) => j)).map((j) => (
                           <th key={j}>{mainData[1]?.[j]}</th>
                         ))}
@@ -141,7 +126,6 @@ export default function USOpenLeaderboard() {
                           displayRowIndex % 5 === 3;
 
                         if (!shouldDisplay) return null;
-
                         const isDivider = displayRowIndex === 3 || displayRowIndex % 5 === 3;
 
                         return (
@@ -150,7 +134,7 @@ export default function USOpenLeaderboard() {
                               const showBorder = !collapsed && (j === 4 || j === 5 || j === 9);
                               const className = showBorder ? "border-r-yellow" : "";
                               return (
-                                <td key={j} className={className}>
+                                <td key={j} className={className} style={{ padding: "0.25rem 0.5rem", whiteSpace: "nowrap" }}>
                                   {row[j]}
                                 </td>
                               );
@@ -162,14 +146,16 @@ export default function USOpenLeaderboard() {
                   </table>
                 </div>
               ) : (
-                <p className="loading-text">Loading data...</p>
+                <p className="loading-text" style={{ color: "#ccc" }}>Loading data...</p>
               )}
             </div>
 
             <div className="masters-box">
-              <h2 className="text-header">US Open Leaderboard</h2>
-              <table className="masters-table">
-                <thead className="group-header">
+              <h2 className="text-header" style={{ color: "#FFD700", fontSize: "1.25rem", marginBottom: "0.5rem" }}>
+                US Open Leaderboard
+              </h2>
+              <table className="masters-table" style={tableStyle}>
+                <thead>
                   <tr>
                     <th>Current Top 10</th>
                     <th>Score</th>
@@ -199,13 +185,36 @@ export default function USOpenLeaderboard() {
 }
 
 const navLinkStyle = {
-  fontSize: "0.95rem",
+  fontSize: "0.85rem",
   color: "#FFD700",
   textDecoration: "none",
   fontWeight: "600",
-  padding: "0.25rem 0.5rem",
+  padding: "0.3rem 0.6rem",
   border: "1px solid #FFD700",
   borderRadius: "6px",
   transition: "all 0.2s ease",
-  textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+  textShadow: "1px 1px 2px rgba(0,0,0,0.8)"
+};
+
+const collapseBtnStyle = {
+  marginBottom: "0.75rem",
+  padding: "0.4rem 0.75rem",
+  fontSize: "0.85rem",
+  backgroundColor: "#333",
+  color: "#FFD700",
+  border: "1px solid #FFD700",
+  borderRadius: "5px",
+  cursor: "pointer"
+};
+
+const tableStyle = {
+  width: "100%",
+  borderCollapse: "collapse",
+  fontSize: "0.8rem"
+};
+
+const groupHeaderStyle = {
+  backgroundColor: "#222",
+  color: "#FFD700",
+  fontWeight: "600"
 };

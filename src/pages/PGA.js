@@ -69,18 +69,54 @@ export default function PGALeaderboard() {
 
   return (
     <div className="leaderboard-wrapper dark" style={{ position: "relative" }}>
-      {/* Home / History nav buttons */}
-      <div style={{ position: "absolute", top: "1rem", right: "1.5rem", display: "flex", gap: "0.75rem" }}>
-        <Link to="/" style={navLinkStyle}>Home</Link>
-        <Link to="/history" style={navLinkStyle}>History</Link>
+      {/* Top Nav */}
+      <div
+        style={{
+          position: "absolute",
+          top: "1rem",
+          right: "1.5rem",
+          display: "flex",
+          gap: "0.75rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <Link to="/" style={navLinkStyle}>
+          Home
+        </Link>
+        <Link to="/history" style={navLinkStyle}>
+          History
+        </Link>
       </div>
 
-      {/* Title */}
-      <div style={{ textAlign: "center", marginTop: "2.5rem", marginBottom: "1rem" }}>
-        <h1 style={{ fontSize: "2.8rem", fontWeight: 700, color: "#FFD700", margin: 0, textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
+      {/* Header */}
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: "3.5rem",
+          marginBottom: "1.5rem",
+          padding: "0 1rem",
+        }}
+      >
+        <h1
+          style={{
+            fontSize: "2.2rem",
+            fontWeight: 700,
+            color: "#FFD700",
+            margin: 0,
+            textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+          }}
+        >
           Steel Sons
         </h1>
-        <h2 style={{ fontSize: "1.4rem", fontWeight: 400, color: "white", marginTop: "0.25rem", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
+        <h2
+          style={{
+            fontSize: "1.2rem",
+            fontWeight: 400,
+            color: "white",
+            marginTop: "0.25rem",
+            textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+          }}
+        >
           PGA Championship Leaderboard
         </h2>
       </div>
@@ -91,7 +127,15 @@ export default function PGALeaderboard() {
             Last updated: {lastUpdated} — Refreshing in {refreshCountdown}s
           </div>
 
-          <div className="leaderboard-grid">
+          <div
+            className="leaderboard-grid"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "2rem",
+              padding: "0 1rem",
+            }}
+          >
             <div className="standings-box">
               <h2 className="text-header">Real-Time Standings</h2>
               <button onClick={() => setCollapsed(!collapsed)} className="collapse-btn">
@@ -190,7 +234,15 @@ export default function PGALeaderboard() {
           </div>
         </>
       ) : (
-        <div style={{ textAlign: "center", marginTop: "3rem", fontSize: "1.3rem", color: "#FFD700" }}>
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: "3rem",
+            fontSize: "1.2rem",
+            color: "#FFD700",
+            padding: "0 1rem",
+          }}
+        >
           Tournament Has Not Started. Check Back In Later!
         </div>
       )}
@@ -199,11 +251,11 @@ export default function PGALeaderboard() {
 }
 
 const navLinkStyle = {
-  fontSize: "0.95rem",
+  fontSize: "0.9rem",
   color: "#FFD700",
   textDecoration: "none",
   fontWeight: "600",
-  padding: "0.25rem 0.5rem",
+  padding: "0.3rem 0.6rem",
   border: "1px solid #FFD700",
   borderRadius: "6px",
   transition: "all 0.2s ease",

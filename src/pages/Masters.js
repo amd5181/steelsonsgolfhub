@@ -68,21 +68,15 @@ export default function Masters() {
   }, []);
 
   return (
-    <div className="leaderboard-wrapper dark" style={{ position: "relative" }}>
-      {/* Home / History nav buttons */}
-      <div style={{ position: "absolute", top: "1rem", right: "1.5rem", display: "flex", gap: "0.75rem" }}>
+    <div className="leaderboard-wrapper dark" style={styles.page}>
+      <div style={styles.navButtons}>
         <Link to="/" style={navLinkStyle}>Home</Link>
         <Link to="/history" style={navLinkStyle}>History</Link>
       </div>
 
-      {/* Title */}
-      <div style={{ textAlign: "center", marginTop: "2.5rem", marginBottom: "1rem" }}>
-        <h1 style={{ fontSize: "2.8rem", fontWeight: 700, color: "#FFD700", margin: 0, textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
-          Steel Sons
-        </h1>
-        <h2 style={{ fontSize: "1.4rem", fontWeight: 400, color: "white", marginTop: "0.25rem", textShadow: "1px 1px 2px rgba(0,0,0,0.8)" }}>
-          Masters Pool Leaderboard
-        </h2>
+      <div style={styles.titleBox}>
+        <h1 style={styles.title}>Steel Sons</h1>
+        <h2 style={styles.subtitle}>Masters Pool Leaderboard</h2>
       </div>
 
       {tournamentStarted ? (
@@ -190,7 +184,7 @@ export default function Masters() {
           </div>
         </>
       ) : (
-        <div style={{ textAlign: "center", marginTop: "3rem", fontSize: "1.3rem", color: "#FFD700" }}>
+        <div style={styles.waitText}>
           Tournament Has Not Started. Check Back In Later!
         </div>
       )}
@@ -208,4 +202,43 @@ const navLinkStyle = {
   borderRadius: "6px",
   transition: "all 0.2s ease",
   textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+};
+
+const styles = {
+  page: {
+    padding: "1rem",
+  },
+  navButtons: {
+    position: "absolute",
+    top: "1rem",
+    right: "1rem",
+    display: "flex",
+    gap: "0.5rem",
+    flexWrap: "wrap",
+  },
+  titleBox: {
+    textAlign: "center",
+    marginTop: "3rem",
+    marginBottom: "1rem",
+  },
+  title: {
+    fontSize: "2.4rem",
+    fontWeight: 700,
+    color: "#FFD700",
+    margin: 0,
+    textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+  },
+  subtitle: {
+    fontSize: "1.2rem",
+    fontWeight: 400,
+    color: "white",
+    marginTop: "0.25rem",
+    textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+  },
+  waitText: {
+    textAlign: "center",
+    marginTop: "3rem",
+    fontSize: "1.2rem",
+    color: "#FFD700",
+  },
 };

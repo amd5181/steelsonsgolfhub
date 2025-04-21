@@ -10,11 +10,9 @@ export default function LeagueHistory() {
   cards.forEach((card) => {
     const { year, gold, silver, bronze } = card;
 
-    // Count wins
     winCounts[gold] = (winCounts[gold] || 0) + 1;
     if (!lastWinYear[gold]) lastWinYear[gold] = year;
 
-    // Count top 3s
     [gold, silver, bronze].forEach((name) => {
       top3Counts[name] = (top3Counts[name] || 0) + 1;
       if (!lastTop3Year[name]) lastTop3Year[name] = year;
@@ -114,6 +112,8 @@ const styles = {
     color: "white",
     minHeight: "100vh",
     padding: "1rem",
+    display: "flex",
+    flexDirection: "column",
   },
   backLink: {
     textAlign: "center",
@@ -137,14 +137,15 @@ const styles = {
   },
   statsBox: {
     display: "flex",
-    justifyContent: "center",
     flexWrap: "wrap",
+    justifyContent: "center",
     gap: "2rem",
     marginBottom: "2.5rem",
     textAlign: "center",
   },
   statBlock: {
     minWidth: "220px",
+    flex: "1 1 300px",
   },
   statTitle: {
     color: "#facc15",
@@ -162,8 +163,9 @@ const styles = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
     gap: "1rem",
+    width: "100%",
     maxWidth: "1100px",
     margin: "0 auto",
   },
