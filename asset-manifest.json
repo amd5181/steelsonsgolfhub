@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/steelsonsgolfhub/static/css/main.c5e4259b.css",
+    "main.css": "/steelsonsgolfhub/static/css/main.17e2f9e7.css",
     "main.js": "/steelsonsgolfhub/static/js/main.ad5011b0.js",
     "index.html": "/steelsonsgolfhub/index.html",
-    "main.c5e4259b.css.map": "/steelsonsgolfhub/static/css/main.c5e4259b.css.map",
+    "main.17e2f9e7.css.map": "/steelsonsgolfhub/static/css/main.17e2f9e7.css.map",
     "main.ad5011b0.js.map": "/steelsonsgolfhub/static/js/main.ad5011b0.js.map"
   },
   "entrypoints": [
-    "static/css/main.c5e4259b.css",
+    "static/css/main.17e2f9e7.css",
     "static/js/main.ad5011b0.js"
   ]
 }
