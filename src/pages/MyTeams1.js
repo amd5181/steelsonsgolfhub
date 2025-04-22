@@ -6,7 +6,6 @@ const TOURNAMENTS = ["Masters", "PGA", "US Open", "The Open"];
 export default function MyTeams() {
   const location = useLocation();
   const email = location.state?.email || "unknown";
-
   const [mastersTeams, setMastersTeams] = useState({ 1: [], 2: [] });
   const [pgaTeams, setPgaTeams] = useState({ 1: [], 2: [] });
   const [usOpenTeams, setUsOpenTeams] = useState({ 1: [], 2: [] });
@@ -14,29 +13,31 @@ export default function MyTeams() {
 
   const now = new Date();
   const cutoffTimes = {
-    Masters:  new Date("2025-04-10T10:00:00-04:00"),
-    PGA:      new Date("2025-05-15T10:00:00-04:00"),
-    "US Open":new Date("2025-06-12T10:00:00-04:00"),
-    "The Open":new Date("2025-07-17T10:00:00-04:00"),
+    Masters: new Date("2025-04-10T10:00:00-04:00"),
+    PGA: new Date("2025-05-15T10:00:00-04:00"),
+    "US Open": new Date("2025-06-12T10:00:00-04:00"),
+    "The Open": new Date("2025-07-17T10:00:00-04:00"),
   };
 
   useEffect(() => {
-    async function fetchTeams(url, setter) {
+    async function fetchTeams(url, setFunc) {
       try {
-        const resp = await fetch(url);
-        const data = await resp.json();
+        const response = await fetch(url);
+        const data = await response.json();
         const teams = { 1: [], 2: [] };
+
         data.forEach((entry) => {
           const teamNum = entry.Team.includes("(2)") ? 2 : 1;
           teams[teamNum].push(entry.Golfer);
         });
-        setter({
+
+        setFunc({
           1: teams[1].length === 5 ? teams[1] : [],
           2: teams[2].length === 5 ? teams[2] : [],
         });
       } catch (err) {
-        console.error("Error fetching teams for", url, err);
-        setter({ 1: [], 2: [] });
+        console.error("Error fetching teams:", err);
+        setFunc({ 1: [], 2: [] });
       }
     }
 
@@ -64,18 +65,21 @@ export default function MyTeams() {
   const getTournamentStatuses = () => {
     const statuses = {};
     let currentSet = false;
-    TOURNAMENTS.forEach((t) => {
-      const cutoff = cutoffTimes[t];
+
+    TOURNAMENTS.forEach((tournament) => {
+      const cutoff = cutoffTimes[tournament];
       const cutoffPlus7 = new Date(cutoff.getTime() + 7 * 24 * 60 * 60 * 1000);
+
       if (now > cutoffPlus7) {
-        statuses[t] = "closed";
+        statuses[tournament] = "closed";
       } else if (!currentSet && now < cutoffPlus7) {
-        statuses[t] = "current";
+        statuses[tournament] = "current";
         currentSet = true;
       } else {
-        statuses[t] = "upcoming";
+        statuses[tournament] = "upcoming";
       }
     });
+
     return statuses;
   };
 
@@ -83,7 +87,6 @@ export default function MyTeams() {
 
   return (
     <div className="overlay" style={{ paddingTop: "2rem" }}>
-      {/* Nav header */}
       <div
         style={{
           width: "100%",
@@ -102,12 +105,11 @@ export default function MyTeams() {
       </div>
 
       <h2 style={styles.emailHeader}>
-        My Teams — <span style={{ fontWeight: 700 }}>{email}</span>
+        My Teams — <span style={{ fontWeight: "700" }}>{email}</span>
       </h2>
 
-      {/* 2×2 on desktop, 1‑column on mobile */}
-      <div className="teams-grid">
-        {TOURNAMENTS.map((tournament, idx) => {
+      <div style={styles.grid}>
+        {TOURNAMENTS.map((tournament, index) => {
           let teams = { 1: [], 2: [] };
           let formLink = "#";
 
@@ -129,26 +131,22 @@ export default function MyTeams() {
 
           return (
             <div
-              key={idx}
-              className={status === "current" ? "glow-border team-card" : "team-card"}
+              key={index}
+              className={status === "current" ? "glow-border" : ""}
               style={styles.card}
             >
               <h3 style={styles.cardTitle}>
                 <u>{tournament}</u>
-                {status === "current" && (
-                  <span style={styles.statusTag}>Current</span>
-                )}
+                {status === "current" && <span style={styles.statusTag}>Current</span>}
                 {status === "upcoming" ? (
                   <span style={styles.upcomingStatus}>Upcoming</span>
                 ) : now < cutoffTimes[tournament] ? (
-                  <a href={formLink} target="_blank" rel="noreferrer" style={styles.edit}>
-                    Enter/Edit
-                  </a>
+                  <a href={formLink} target="_blank" rel="noreferrer" style={styles.edit}>Enter/Edit</a>
                 ) : (
                   <span style={styles.closed}>Entries Closed</span>
                 )}
               </h3>
-              <div className="team-row">
+              <div style={styles.teamRow}>
                 <TeamList teamName="Team 1" players={teams[1]} />
                 <TeamList teamName="Team 2" players={teams[2]} />
               </div>
@@ -161,13 +159,14 @@ export default function MyTeams() {
 }
 
 function TeamList({ teamName, players }) {
+  const hasEntry = players.length === 5;
   return (
-    <div style={{ flex: 1 }}>
+    <div>
       <p style={styles.teamLabel}>{teamName}</p>
-      {players.length === 5 ? (
+      {hasEntry ? (
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-          {players.map((p, i) => (
-            <li key={i} style={styles.player}>{p}</li>
+          {players.map((player, idx) => (
+            <li key={idx} style={styles.player}>{player}</li>
           ))}
         </ul>
       ) : (
@@ -182,6 +181,7 @@ const styles = {
     fontFamily: "'Playfair Display', serif",
     fontSize: "2rem",
     color: "#FFD700",
+    margin: 0,
     textAlign: "center",
     textShadow: "1px 1px 2px rgba(0,0,0,0.6)",
   },
@@ -202,39 +202,50 @@ const styles = {
     fontWeight: 500,
     textAlign: "center",
   },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: "1.5rem",
+    maxWidth: "1000px",
+    margin: "0 auto",
+  },
   card: {
     backgroundColor: "rgba(0, 0, 0, 0.65)",
+    border: "1px solid #FFD700",
     borderRadius: "12px",
     padding: "1.5rem",
-    margin: "0.5rem",
+    color: "white",
   },
   cardTitle: {
     fontSize: "1.2rem",
     color: "#FFD700",
     marginBottom: "1rem",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
   },
   statusTag: {
     fontSize: "0.8rem",
     color: "#00FFD0",
+    marginLeft: "0.5rem",
   },
   upcomingStatus: {
-    marginLeft: "auto",
     fontSize: "0.9rem",
     color: "#888",
     fontStyle: "italic",
+    float: "right",
   },
   edit: {
-    marginLeft: "auto",
     fontSize: "0.9rem",
-    color: "#0f0",
+    color: "#ccc",
+    float: "right",
   },
   closed: {
-    marginLeft: "auto",
     fontSize: "0.9rem",
-    color: "#f00",
+    color: "#888",
+    float: "right",
+  },
+  teamRow: {
+    display: "flex",
+    flexDirection: "row",  // updated for 2x2 grid layout
+    gap: "2rem",
   },
   teamLabel: {
     fontWeight: "bold",
