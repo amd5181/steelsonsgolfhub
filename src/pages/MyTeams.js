@@ -20,24 +20,22 @@ export default function MyTeams() {
   };
 
   useEffect(() => {
-    async function fetchTeams(url, setFunc) {
+    async function fetchTeams(url, setter) {
       try {
         const response = await fetch(url);
         const data = await response.json();
         const teams = { 1: [], 2: [] };
-
         data.forEach((entry) => {
           const teamNum = entry.Team.includes("(2)") ? 2 : 1;
           teams[teamNum].push(entry.Golfer);
         });
-
-        setFunc({
+        setter({
           1: teams[1].length === 5 ? teams[1] : [],
           2: teams[2].length === 5 ? teams[2] : [],
         });
       } catch (err) {
         console.error("Error fetching teams:", err);
-        setFunc({ 1: [], 2: [] });
+        setter({ 1: [], 2: [] });
       }
     }
 
@@ -45,17 +43,14 @@ export default function MyTeams() {
       `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(email)}`,
       setMastersTeams
     );
-
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(email)}`,
       setPgaTeams
     );
-
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(email)}`,
       setUsOpenTeams
     );
-
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}&mode=json`,
       setTheOpenTeams
@@ -66,17 +61,17 @@ export default function MyTeams() {
     const statuses = {};
     let currentSet = false;
 
-    TOURNAMENTS.forEach((tournament) => {
-      const cutoff = cutoffTimes[tournament];
+    TOURNAMENTS.forEach((t) => {
+      const cutoff = cutoffTimes[t];
       const cutoffPlus7 = new Date(cutoff.getTime() + 7 * 24 * 60 * 60 * 1000);
 
       if (now > cutoffPlus7) {
-        statuses[tournament] = "closed";
+        statuses[t] = "closed";
       } else if (!currentSet && now < cutoffPlus7) {
-        statuses[tournament] = "current";
+        statuses[t] = "current";
         currentSet = true;
       } else {
-        statuses[tournament] = "upcoming";
+        statuses[t] = "upcoming";
       }
     });
 
@@ -99,22 +94,18 @@ export default function MyTeams() {
       >
         <h1 style={styles.title}>Steel Sons Golf Hub</h1>
         <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
-          <Link to="/" style={styles.navLink}>
-            Home
-          </Link>
-          <Link to="/history" style={styles.navLink}>
-            History
-          </Link>
+          <Link to="/" style={styles.navLink}>Home</Link>
+          <Link to="/history" style={styles.navLink}>History</Link>
         </div>
       </div>
 
       <h2 style={styles.emailHeader}>
-        My Teams — <span style={{ fontWeight: "700" }}>{email}</span>
+        My Teams — <span style={{ fontWeight: 700 }}>{email}</span>
       </h2>
 
-      {/* 2×2 on desktop, 1×n on mobile */}
+      {/* use CSS class instead of inline grid */}
       <div className="teams-grid">
-        {TOURNAMENTS.map((tournament, index) => {
+        {TOURNAMENTS.map((tournament, idx) => {
           let teams = { 1: [], 2: [] };
           let formLink = "#";
 
@@ -136,16 +127,25 @@ export default function MyTeams() {
 
           return (
             <div
-              key={index}
-              className={status === "current" ? "glow-border team-card" : "team-card"}
+              key={idx}
+              className={
+                status === "current" ? "glow-border team-card" : "team-card"
+              }
             >
               <h3 style={styles.cardTitle}>
                 <u>{tournament}</u>
-                {status === "current" && <span style={styles.statusTag}>Current</span>}
+                {status === "current" && (
+                  <span style={styles.statusTag}>Current</span>
+                )}
                 {status === "upcoming" ? (
                   <span style={styles.upcomingStatus}>Upcoming</span>
                 ) : now < cutoffTimes[tournament] ? (
-                  <a href={formLink} target="_blank" rel="noreferrer" style={styles.edit}>
+                  <a
+                    href={formLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={styles.edit}
+                  >
                     Enter/Edit
                   </a>
                 ) : (
@@ -172,7 +172,9 @@ function TeamList({ teamName, players }) {
       {hasEntry ? (
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {players.map((player, idx) => (
-            <li key={idx} style={styles.player}>{player}</li>
+            <li key={idx} style={styles.player}>
+              {player}
+            </li>
           ))}
         </ul>
       ) : (
@@ -184,70 +186,63 @@ function TeamList({ teamName, players }) {
 
 const styles = {
   title: {
-    fontFamily: "'Playfair Display', serif',
-    fontSize: '2rem',
-    color: '#FFD700',
+    fontFamily: "'Playfair Display', serif",
+    fontSize: "2rem",
+    color: "#FFD700",
     margin: 0,
-    textAlign: 'center',
-    textShadow: '1px 1px 2px rgba(0,0,0,0.6)',
+    textAlign: "center",
+    textShadow: "1px 1px 2px rgba(0,0,0,0.6)",
   },
   navLink: {
-    fontSize: '0.95rem',
-    color: '#FFD700',
-    textDecoration: 'none',
-    fontWeight: '600',
-    padding: '0.25rem 0.5rem',
-    border: '1px solid #FFD700',
-    borderRadius: '6px',
-    transition: 'all 0.2s ease',
+    fontSize: "0.95rem",
+    color: "#FFD700",
+    textDecoration: "none",
+    fontWeight: "600",
+    padding: "0.25rem 0.5rem",
+    border: "1px solid #FFD700",
+    borderRadius: "6px",
+    transition: "all 0.2s ease",
   },
   emailHeader: {
-    color: 'white',
-    fontSize: '1.1rem',
-    marginBottom: '2rem',
+    color: "white",
+    fontSize: "1.1rem",
+    marginBottom: "2rem",
     fontWeight: 500,
-    textAlign: 'center',
-  },
-  card: {
-    backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    border: '1px solid #FFD700',
-    borderRadius: '12px',
-    padding: '1.5rem',
-    color: 'white',
+    textAlign: "center",
   },
   cardTitle: {
-    fontSize: '1.2rem',
-    color: '#FFD700',
-    marginBottom: '1rem',
+    fontSize: "1.2rem",
+    color: "#FFD700",
+    marginBottom: "1rem",
   },
   statusTag: {
-    fontSize: '0.8rem',
-    color: '#00FFD0',
-    marginLeft: '0.5rem',
+    fontSize: "0.8rem",
+    color: "#00FFD0",
+    marginLeft: "0.5rem",
   },
   upcomingStatus: {
-    fontSize: '0.9rem',
-    color: '#888',
-    fontStyle: 'italic',
-    float: 'right',
+    fontSize: "0.9rem",
+    color: "#888",
+    fontStyle: "italic",
+    float: "right",
   },
   edit: {
-    fontSize: '0.9rem',
-    color: '#ccc',
-    float: 'right',
+    fontSize: "0.9rem",
+    color: "#ccc",
+    float: "right",
   },
   closed: {
-    fontSize: '0.9rem',
-    color: '#888',
-    float: 'right',
+    fontSize: "0.9rem",
+    color: "#888",
+    float: "right",
   },
   teamLabel: {
-    fontWeight: 'bold',
-    color: '#4CAF50',
-    marginBottom: '0.5rem',
+    fontWeight: "bold",
+    color: "#4CAF50",
+    marginBottom: "0.5rem",
   },
   player: {
-    color: '#ddd',
-    marginBottom: '0.3rem',
+    color: "#ddd",
+    marginBottom: "0.3rem",
   },
 };
