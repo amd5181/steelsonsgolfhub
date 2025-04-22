@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Link } from "react-router-dom";
 
 import Masters from "./pages/Masters";
 import USOpen from "./pages/USOpen";
@@ -60,7 +60,6 @@ function Home() {
         results[label] = "upcoming";
       }
     }
-
     return results;
   };
 
@@ -71,7 +70,10 @@ function Home() {
       <h1>Steel Sons Golf Hub</h1>
       <h2>2025</h2>
 
-      <form onSubmit={handleSubmit} style={{ textAlign: "center", width: "100%", marginBottom: "2rem" }}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ textAlign: "center", width: "100%", marginBottom: "2rem" }}
+      >
         <label htmlFor="email">My Teams</label>
         <input
           id="email"
@@ -81,7 +83,11 @@ function Home() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <br />
-        <button type="submit" className="submit-button" style={{ marginTop: "1rem" }}>
+        <button
+          type="submit"
+          className="submit-button"
+          style={{ marginTop: "1rem" }}
+        >
           Submit
         </button>
       </form>
@@ -89,22 +95,17 @@ function Home() {
       <h2 className="section-title">Tournament Leaderboards</h2>
 
       <div className="grid-buttons">
-        {tournamentList.map((label) => (
-          <NavLink
-            key={label}
-            label={label}
-            path={`/${label.toLowerCase().replace(" ", "-")}`}
-            status={tournamentStatuses[label]}
-          />
-        ))}
-      </div>
-
-      <div style={{ textAlign: "center", marginTop: "1rem" }}>
-        <NavLink
-          label="League History"
-          path="/history"
-          className="history-button"
-        />
+        {tournamentList.map((label) => {
+          const status = tournamentStatuses[label];
+          return (
+            <NavLink
+              key={label}
+              label={label}
+              path={`/${label.toLowerCase().replace(" ", "-")}`}
+              status={status}
+            />
+          );
+        })}
       </div>
     </div>
   );
@@ -121,12 +122,12 @@ function NavLink({ label, path, status = "", className = "link-button" }) {
       : "";
 
   return (
-    <a href={`#${path}`} className={`${className} ${status}`}>
+    <Link to={path} className={`${className} ${status}`}>
       <div style={{ textAlign: "center" }}>
         {label}
         {statusText && <div className="status-text">{statusText}</div>}
       </div>
-    </a>
+    </Link>
   );
 }
 
