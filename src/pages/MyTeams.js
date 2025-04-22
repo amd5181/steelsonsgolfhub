@@ -4,9 +4,8 @@ import { useLocation, Link } from "react-router-dom";
 const TOURNAMENTS = ["Masters", "PGA", "US Open", "The Open"];
 
 export default function MyTeams() {
-  const location = useLocation();
-  // start with the email from homepage
-  const initialEmail = location.state?.email || "";
+  const { state } = useLocation();
+  const initialEmail = state?.email || "";
   const [currentEmail, setCurrentEmail] = useState(initialEmail);
   const [newEmail, setNewEmail] = useState(initialEmail);
 
@@ -23,11 +22,12 @@ export default function MyTeams() {
     "The Open":new Date("2025-07-17T10:00:00-04:00"),
   };
 
-  // Re-fetch whenever currentEmail changes
+  // Fetch team data whenever currentEmail changes
   useEffect(() => {
-    async function fetchTeams(url, setter) {
+    async function fetchTeams(baseUrl, setter) {
       try {
-        const resp = await fetch(`${url}?email=${encodeURIComponent(currentEmail)}`);
+        const url = `${baseUrl}?email=${encodeURIComponent(currentEmail)}`;
+        const resp = await fetch(url);
         const data = await resp.json();
         const teams = { 1: [], 2: [] };
         data.forEach((entry) => {
@@ -39,12 +39,12 @@ export default function MyTeams() {
           2: teams[2].length === 5 ? teams[2] : [],
         });
       } catch (err) {
-        console.error("Error fetching teams for", url, err);
+        console.error("Error fetching teams:", err);
         setter({ 1: [], 2: [] });
       }
     }
 
-    // your exact original URLs
+    // your exact original Apps Script exec URLs
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(email)}`,
       setMastersTeams
@@ -66,6 +66,7 @@ export default function MyTeams() {
     );
   }, [currentEmail]);
 
+  // Determine closed/current/upcoming
   const getTournamentStatuses = () => {
     const statuses = {};
     let currentSet = false;
@@ -74,7 +75,7 @@ export default function MyTeams() {
       const cutoffPlus7 = new Date(cutoff.getTime() + 7 * 24 * 60 * 60 * 1000);
       if (now > cutoffPlus7) {
         statuses[t] = "closed";
-      } else if (!currentSet && now < cutoffPlus7) {
+      } else if (!currentSet) {
         statuses[t] = "current";
         currentSet = true;
       } else {
@@ -85,77 +86,87 @@ export default function MyTeams() {
   };
   const tournamentStatuses = getTournamentStatuses();
 
-  // handle change-email form submit
+  // Change‑email form handler
   const handleEmailChange = (e) => {
     e.preventDefault();
     setCurrentEmail(newEmail.trim());
   };
 
   return (
-    <div className="overlay" style={{ paddingTop: "2rem" }}>
+    <div className="overlay" style={{ paddingTop: "2rem", textAlign: "center" }}>
       {/* Nav header */}
       <div
         style={{
           width: "100%",
           maxWidth: "1200px",
+          margin: "0 auto 2rem",
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          marginBottom: "2rem",
+          justifyContent: "center",
+          gap: "1rem",
         }}
       >
-        <h1 style={styles.title}>Steel Sons Golf Hub</h1>
-        <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
-          <Link to="/" style={styles.navLink}>Home</Link>
-          <Link to="/history" style={styles.navLink}>History</Link>
-          <Link to="/leaderboards" style={styles.navLink}>Leaderboards</Link>
-        </div>
+        <Link to="/" style={styles.navLink}>Home</Link>
+        <Link to="/history" style={styles.navLink}>History</Link>
+        <Link to="/leaderboards" style={styles.navLink}>Leaderboards</Link>
       </div>
 
-      {/* Change Email form */}
-      <form onSubmit={handleEmailChange} style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+      {/* Change Email */}
+      <form
+        onSubmit={handleEmailChange}
+        style={{ marginBottom: "2rem", maxWidth: "360px", margin: "0 auto" }}
+      >
         <input
           type="email"
+          placeholder="Change email"
           value={newEmail}
           onChange={(e) => setNewEmail(e.target.value)}
-          placeholder="Enter new email"
+          style={{ width: "100%", marginBottom: "0.5rem" }}
         />
-        <button type="submit" className="submit-button">Change Email</button>
+        <button type="submit" className="submit-button" style={{ width: "100%" }}>
+          Change Email
+        </button>
       </form>
 
       <h2 style={styles.emailHeader}>
         My Teams — <span style={{ fontWeight: 700 }}>{currentEmail}</span>
       </h2>
 
-      {/* Leaderboards links */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "2rem", flexWrap: "wrap", justifyContent: "center" }}>
+      {/* Links to leaderboards */}
+      <div style={{
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          gap: "1rem",
+          marginBottom: "2rem",
+        }}>
         {TOURNAMENTS.map((t) => (
-          <Link key={t} to={`/leaderboards/${t.toLowerCase().replace(/ /g, "")}`} style={styles.navLink}>
+          <Link
+            key={t}
+            to={`/leaderboards/${t.toLowerCase().replace(/ /g, "")}`}
+            style={styles.navLink}
+          >
             {t} Leaderboard
           </Link>
         ))}
       </div>
 
-      {/* 2×2 on desktop, 1‑column on mobile */}
+      {/* Teams grid */}
       <div className="teams-grid">
-        {TOURNAMENTS.map((tournament, idx) => {
+        {TOURNAMENTS.map((t, idx) => {
           let teams = { 1: [], 2: [] };
-          let formLink = "#";
-          if (tournament === "Masters") {
-            teams = mastersTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbyM_KcivAteMOC_SAKZZkMBDEfqj9ep7gfFOzIxTn2LtDSTfs-O_O1McU9D8jmbADOfhw/exec?email=${encodeURIComponent(email)}`;
-          } else if (tournament === "PGA") {
-            teams = pgaTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbz44QE8_JF30JJ5DlGn1LbNj61-G8TIfHre8ysmj2RV0yRsymMBKcP5A8hbgvaMWChgRw/exec?email=${encodeURIComponent(email)}`;
-          } else if (tournament === "US Open") {
-            teams = usOpenTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbw4lNEjB79XT1yc1NtSJ8_hd9v9xG0oyqvEDfZGR6hYoIikQhp8ndx4KHv5cEZBPs1LCQ/exec?email=${encodeURIComponent(email)}`;
-          } else if (tournament === "The Open") {
-            teams = theOpenTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}`;
-          }
+          let formBase = "";
+          if (t === "Masters") formBase = "https://script.google.com/macros/s/AKfycbyM_KcivAteMOC_SAKZZkMBDEfqj9ep7gfFOzIxTn2LtDSTfs-O_O1McU9D8jmbADOfhw/exec";
+          else if (t === "PGA") formBase = "https://script.google.com/macros/s/AKfycbz44QE8_JF30JJ5DlGn1LbNj61-G8TIfHre8ysmj2RV0yRsymMBKcP5A8hbgvaMWChgRw/exec";
+          else if (t === "US Open") formBase = "https://script.google.com/macros/s/AKfycbw4lNEjB79XT1yc1NtSJ8_hd9v9xG0oyqvEDfZGR6hYoIikQhp8ndx4KHv5cEZBPs1LCQ/exec";
+          else formBase = "https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec";
 
-          const status = tournamentStatuses[tournament];
+          if (t === "Masters") teams = mastersTeams;
+          if (t === "PGA")     teams = pgaTeams;
+          if (t === "US Open") teams = usOpenTeams;
+          if (t === "The Open")teams = theOpenTeams;
+
+          const formLink = `${formBase}?email=${encodeURIComponent(currentEmail)}`;
+          const status = tournamentStatuses[t];
 
           return (
             <div
@@ -164,11 +175,11 @@ export default function MyTeams() {
               style={styles.card}
             >
               <h3 style={styles.cardTitle}>
-                <u>{tournament}</u>
+                <u>{t}</u>
                 {status === "current" && <span style={styles.statusTag}>Current</span>}
                 {status === "upcoming" ? (
                   <span style={styles.upcomingStatus}>Upcoming</span>
-                ) : now < cutoffTimes[tournament] ? (
+                ) : now < cutoffTimes[t] ? (
                   <a href={formLink} target="_blank" rel="noreferrer" style={styles.edit}>
                     Enter/Edit
                   </a>
@@ -206,13 +217,6 @@ function TeamList({ teamName, players }) {
 }
 
 const styles = {
-  title: {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: "2rem",
-    color: "#FFD700",
-    textAlign: "center",
-    textShadow: "1px 1px 2px rgba(0,0,0,0.6)",
-  },
   navLink: {
     fontSize: "0.95rem",
     color: "#FFD700",
@@ -223,6 +227,7 @@ const styles = {
     borderRadius: "6px",
     transition: "all 0.2s ease",
   },
+  title: { /* omitted—your existing title styles */ },
   emailHeader: {
     color: "white",
     fontSize: "1.1rem",
