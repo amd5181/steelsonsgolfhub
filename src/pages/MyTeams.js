@@ -6,6 +6,7 @@ const TOURNAMENTS = ["Masters", "PGA", "US Open", "The Open"];
 export default function MyTeams() {
   const location = useLocation();
   const email = location.state?.email || "unknown";
+
   const [mastersTeams, setMastersTeams] = useState({ 1: [], 2: [] });
   const [pgaTeams, setPgaTeams] = useState({ 1: [], 2: [] });
   const [usOpenTeams, setUsOpenTeams] = useState({ 1: [], 2: [] });
@@ -22,8 +23,8 @@ export default function MyTeams() {
   useEffect(() => {
     async function fetchTeams(url, setter) {
       try {
-        const response = await fetch(url);
-        const data = await response.json();
+        const res = await fetch(url);
+        const data = await res.json();
         const teams = { 1: [], 2: [] };
         data.forEach((entry) => {
           const teamNum = entry.Team.includes("(2)") ? 2 : 1;
@@ -34,25 +35,33 @@ export default function MyTeams() {
           2: teams[2].length === 5 ? teams[2] : [],
         });
       } catch (err) {
-        console.error("Error fetching teams:", err);
+        console.error("Error fetching teams", err);
         setter({ 1: [], 2: [] });
       }
     }
 
     fetchTeams(
-      `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(email)}`,
+      `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(
+        email
+      )}`,
       setMastersTeams
     );
     fetchTeams(
-      `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(email)}`,
+      `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(
+        email
+      )}`,
       setPgaTeams
     );
     fetchTeams(
-      `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(email)}`,
+      `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(
+        email
+      )}`,
       setUsOpenTeams
     );
     fetchTeams(
-      `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}&mode=json`,
+      `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(
+        email
+      )}&mode=json`,
       setTheOpenTeams
     );
   }, [email]);
@@ -60,11 +69,9 @@ export default function MyTeams() {
   const getTournamentStatuses = () => {
     const statuses = {};
     let currentSet = false;
-
     TOURNAMENTS.forEach((t) => {
       const cutoff = cutoffTimes[t];
       const cutoffPlus7 = new Date(cutoff.getTime() + 7 * 24 * 60 * 60 * 1000);
-
       if (now > cutoffPlus7) {
         statuses[t] = "closed";
       } else if (!currentSet && now < cutoffPlus7) {
@@ -74,7 +81,6 @@ export default function MyTeams() {
         statuses[t] = "upcoming";
       }
     });
-
     return statuses;
   };
 
@@ -103,43 +109,47 @@ export default function MyTeams() {
         My Teams — <span style={{ fontWeight: 700 }}>{email}</span>
       </h2>
 
-      {/* use CSS class instead of inline grid */}
+      {/* 2×2 on desktop, 1×n on mobile */}
       <div className="teams-grid">
-        {TOURNAMENTS.map((tournament, idx) => {
+        {TOURNAMENTS.map((t, i) => {
           let teams = { 1: [], 2: [] };
           let formLink = "#";
 
-          if (tournament === "Masters") {
+          if (t === "Masters") {
             teams = mastersTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(email)}`;
-          } else if (tournament === "PGA") {
+            formLink = `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(
+              email
+            )}`;
+          } else if (t === "PGA") {
             teams = pgaTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(email)}`;
-          } else if (tournament === "US Open") {
+            formLink = `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(
+              email
+            )}`;
+          } else if (t === "US Open") {
             teams = usOpenTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(email)}`;
-          } else if (tournament === "The Open") {
+            formLink = `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(
+              email
+            )}`;
+          } else if (t === "The Open") {
             teams = theOpenTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}`;
+            formLink = `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(
+              email
+            )}&mode=json`;
           }
 
-          const status = tournamentStatuses[tournament];
+          const status = tournamentStatuses[t];
 
           return (
             <div
-              key={idx}
-              className={
-                status === "current" ? "glow-border team-card" : "team-card"
-              }
+              key={i}
+              className={status === "current" ? "glow-border team-card" : "team-card"}
             >
               <h3 style={styles.cardTitle}>
-                <u>{tournament}</u>
-                {status === "current" && (
-                  <span style={styles.statusTag}>Current</span>
-                )}
+                <u>{t}</u>
+                {status === "current" && <span style={styles.statusTag}>Current</span>}
                 {status === "upcoming" ? (
                   <span style={styles.upcomingStatus}>Upcoming</span>
-                ) : now < cutoffTimes[tournament] ? (
+                ) : now < cutoffTimes[t] ? (
                   <a
                     href={formLink}
                     target="_blank"
@@ -165,16 +175,13 @@ export default function MyTeams() {
 }
 
 function TeamList({ teamName, players }) {
-  const hasEntry = players.length === 5;
   return (
     <div style={{ flex: 1 }}>
       <p style={styles.teamLabel}>{teamName}</p>
-      {hasEntry ? (
+      {players.length === 5 ? (
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-          {players.map((player, idx) => (
-            <li key={idx} style={styles.player}>
-              {player}
-            </li>
+          {players.map((p, idx) => (
+            <li key={idx} style={styles.player}>{p}</li>
           ))}
         </ul>
       ) : (
@@ -228,12 +235,12 @@ const styles = {
   },
   edit: {
     fontSize: "0.9rem",
-    color: "#ccc",
+    color: "#0f0",
     float: "right",
   },
   closed: {
     fontSize: "0.9rem",
-    color: "#888",
+    color: "#f00",
     float: "right",
   },
   teamLabel: {
