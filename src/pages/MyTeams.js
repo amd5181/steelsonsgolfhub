@@ -14,17 +14,17 @@ export default function MyTeams() {
 
   const now = new Date();
   const cutoffTimes = {
-    Masters: new Date("2025-04-10T10:00:00-04:00"),
-    PGA:    new Date("2025-05-15T10:00:00-04:00"),
-    "US Open": new Date("2025-06-12T10:00:00-04:00"),
-    "The Open": new Date("2025-07-17T10:00:00-04:00"),
+    Masters:  new Date("2025-04-10T10:00:00-04:00"),
+    PGA:      new Date("2025-05-15T10:00:00-04:00"),
+    "US Open":new Date("2025-06-12T10:00:00-04:00"),
+    "The Open":new Date("2025-07-17T10:00:00-04:00"),
   };
 
   useEffect(() => {
     async function fetchTeams(url, setter) {
       try {
-        const res = await fetch(url);
-        const data = await res.json();
+        const resp = await fetch(url);
+        const data = await resp.json();
         const teams = { 1: [], 2: [] };
         data.forEach((entry) => {
           const teamNum = entry.Team.includes("(2)") ? 2 : 1;
@@ -35,33 +35,25 @@ export default function MyTeams() {
           2: teams[2].length === 5 ? teams[2] : [],
         });
       } catch (err) {
-        console.error("Error fetching teams", err);
+        console.error("Error fetching teams for", url, err);
         setter({ 1: [], 2: [] });
       }
     }
 
     fetchTeams(
-      `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(
-        email
-      )}`,
+      `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(email)}`,
       setMastersTeams
     );
     fetchTeams(
-      `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(
-        email
-      )}`,
+      `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(email)}`,
       setPgaTeams
     );
     fetchTeams(
-      `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(
-        email
-      )}`,
+      `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(email)}`,
       setUsOpenTeams
     );
     fetchTeams(
-      `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(
-        email
-      )}&mode=json`,
+      `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}&mode=json`,
       setTheOpenTeams
     );
   }, [email]);
@@ -88,6 +80,7 @@ export default function MyTeams() {
 
   return (
     <div className="overlay" style={{ paddingTop: "2rem" }}>
+      {/* Nav header */}
       <div
         style={{
           width: "100%",
@@ -109,53 +102,43 @@ export default function MyTeams() {
         My Teams — <span style={{ fontWeight: 700 }}>{email}</span>
       </h2>
 
-      {/* 2×2 on desktop, 1×n on mobile */}
+      {/* 2×2 on desktop, 1‑column on mobile */}
       <div className="teams-grid">
-        {TOURNAMENTS.map((t, i) => {
+        {TOURNAMENTS.map((tournament, idx) => {
           let teams = { 1: [], 2: [] };
           let formLink = "#";
 
-          if (t === "Masters") {
+          if (tournament === "Masters") {
             teams = mastersTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(
-              email
-            )}`;
-          } else if (t === "PGA") {
+            formLink = `https://script.google.com/macros/s/AKfycbyM_KcivAteMOC_SAKZZkMBDEfqj9ep7gfFOzIxTn2LtDSTfs-O_O1McU9D8jmbADOfhw/exec?email=${encodeURIComponent(email)}`;
+          } else if (tournament === "PGA") {
             teams = pgaTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(
-              email
-            )}`;
-          } else if (t === "US Open") {
+            formLink = `https://script.google.com/macros/s/AKfycbz44QE8_JF30JJ5DlGn1LbNj61-G8TIfHre8ysmj2RV0yRsymMBKcP5A8hbgvaMWChgRw/exec?email=${encodeURIComponent(email)}`;
+          } else if (tournament === "US Open") {
             teams = usOpenTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(
-              email
-            )}`;
-          } else if (t === "The Open") {
+            formLink = `https://script.google.com/macros/s/AKfycbw4lNEjB79XT1yc1NtSJ8_hd9v9xG0oyqvEDfZGR6hYoIikQhp8ndx4KHv5cEZBPs1LCQ/exec?email=${encodeURIComponent(email)}`;
+          } else if (tournament === "The Open") {
             teams = theOpenTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(
-              email
-            )}&mode=json`;
+            formLink = `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}`;
           }
 
-          const status = tournamentStatuses[t];
+          const status = tournamentStatuses[tournament];
 
           return (
             <div
-              key={i}
+              key={idx}
               className={status === "current" ? "glow-border team-card" : "team-card"}
+              style={styles.card}
             >
               <h3 style={styles.cardTitle}>
-                <u>{t}</u>
-                {status === "current" && <span style={styles.statusTag}>Current</span>}
+                <u>{tournament}</u>
+                {status === "current" && (
+                  <span style={styles.statusTag}>Current</span>
+                )}
                 {status === "upcoming" ? (
                   <span style={styles.upcomingStatus}>Upcoming</span>
-                ) : now < cutoffTimes[t] ? (
-                  <a
-                    href={formLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={styles.edit}
-                  >
+                ) : now < cutoffTimes[tournament] ? (
+                  <a href={formLink} target="_blank" rel="noreferrer" style={styles.edit}>
                     Enter/Edit
                   </a>
                 ) : (
@@ -180,8 +163,8 @@ function TeamList({ teamName, players }) {
       <p style={styles.teamLabel}>{teamName}</p>
       {players.length === 5 ? (
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-          {players.map((p, idx) => (
-            <li key={idx} style={styles.player}>{p}</li>
+          {players.map((p, i) => (
+            <li key={i} style={styles.player}>{p}</li>
           ))}
         </ul>
       ) : (
@@ -196,7 +179,6 @@ const styles = {
     fontFamily: "'Playfair Display', serif",
     fontSize: "2rem",
     color: "#FFD700",
-    margin: 0,
     textAlign: "center",
     textShadow: "1px 1px 2px rgba(0,0,0,0.6)",
   },
@@ -217,31 +199,39 @@ const styles = {
     fontWeight: 500,
     textAlign: "center",
   },
+  card: {
+    backgroundColor: "rgba(0, 0, 0, 0.65)",
+    borderRadius: "12px",
+    padding: "1.5rem",
+    margin: "0.5rem",
+  },
   cardTitle: {
     fontSize: "1.2rem",
     color: "#FFD700",
     marginBottom: "1rem",
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
   },
   statusTag: {
     fontSize: "0.8rem",
     color: "#00FFD0",
-    marginLeft: "0.5rem",
   },
   upcomingStatus: {
+    marginLeft: "auto",
     fontSize: "0.9rem",
     color: "#888",
     fontStyle: "italic",
-    float: "right",
   },
   edit: {
+    marginLeft: "auto",
     fontSize: "0.9rem",
     color: "#0f0",
-    float: "right",
   },
   closed: {
+    marginLeft: "auto",
     fontSize: "0.9rem",
     color: "#f00",
-    float: "right",
   },
   teamLabel: {
     fontWeight: "bold",
