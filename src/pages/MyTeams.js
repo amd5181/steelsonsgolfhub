@@ -113,15 +113,7 @@ export default function MyTeams() {
       </h2>
 
       {/* 2×2 on desktop, 1×n on mobile */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-          gap: "1.5rem",
-          maxWidth: "1000px",
-          margin: "0 auto",
-        }}
-      >
+      <div className="teams-grid">
         {TOURNAMENTS.map((tournament, index) => {
           let teams = { 1: [], 2: [] };
           let formLink = "#";
@@ -145,30 +137,22 @@ export default function MyTeams() {
           return (
             <div
               key={index}
-              className={status === "current" ? "glow-border" : ""}
-              style={styles.card}
+              className={status === "current" ? "glow-border team-card" : "team-card"}
             >
               <h3 style={styles.cardTitle}>
                 <u>{tournament}</u>
-                {status === "current" && (
-                  <span style={styles.statusTag}>Current</span>
-                )}
+                {status === "current" && <span style={styles.statusTag}>Current</span>}
                 {status === "upcoming" ? (
                   <span style={styles.upcomingStatus}>Upcoming</span>
                 ) : now < cutoffTimes[tournament] ? (
-                  <a
-                    href={formLink}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={styles.edit}
-                  >
+                  <a href={formLink} target="_blank" rel="noreferrer" style={styles.edit}>
                     Enter/Edit
                   </a>
                 ) : (
                   <span style={styles.closed}>Entries Closed</span>
                 )}
               </h3>
-              <div style={styles.teamRow}>
+              <div className="team-row">
                 <TeamList teamName="Team 1" players={teams[1]} />
                 <TeamList teamName="Team 2" players={teams[2]} />
               </div>
@@ -183,14 +167,12 @@ export default function MyTeams() {
 function TeamList({ teamName, players }) {
   const hasEntry = players.length === 5;
   return (
-    <div>
+    <div style={{ flex: 1 }}>
       <p style={styles.teamLabel}>{teamName}</p>
       {hasEntry ? (
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {players.map((player, idx) => (
-            <li key={idx} style={styles.player}>
-              {player}
-            </li>
+            <li key={idx} style={styles.player}>{player}</li>
           ))}
         </ul>
       ) : (
@@ -202,75 +184,70 @@ function TeamList({ teamName, players }) {
 
 const styles = {
   title: {
-    fontFamily: "'Playfair Display', serif",
-    fontSize: "2rem",
-    color: "#FFD700",
+    fontFamily: "'Playfair Display', serif',
+    fontSize: '2rem',
+    color: '#FFD700',
     margin: 0,
-    textAlign: "center",
-    textShadow: "1px 1px 2px rgba(0,0,0,0.6)",
+    textAlign: 'center',
+    textShadow: '1px 1px 2px rgba(0,0,0,0.6)',
   },
   navLink: {
-    fontSize: "0.95rem",
-    color: "#FFD700",
-    textDecoration: "none",
-    fontWeight: "600",
-    padding: "0.25rem 0.5rem",
-    border: "1px solid #FFD700",
-    borderRadius: "6px",
-    transition: "all 0.2s ease",
+    fontSize: '0.95rem',
+    color: '#FFD700',
+    textDecoration: 'none',
+    fontWeight: '600',
+    padding: '0.25rem 0.5rem',
+    border: '1px solid #FFD700',
+    borderRadius: '6px',
+    transition: 'all 0.2s ease',
   },
   emailHeader: {
-    color: "white",
-    fontSize: "1.1rem",
-    marginBottom: "2rem",
+    color: 'white',
+    fontSize: '1.1rem',
+    marginBottom: '2rem',
     fontWeight: 500,
-    textAlign: "center",
+    textAlign: 'center',
   },
   card: {
-    backgroundColor: "rgba(0, 0, 0, 0.65)",
-    border: "1px solid #FFD700",
-    borderRadius: "12px",
-    padding: "1.5rem",
-    color: "white",
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    border: '1px solid #FFD700',
+    borderRadius: '12px',
+    padding: '1.5rem',
+    color: 'white',
   },
   cardTitle: {
-    fontSize: "1.2rem",
-    color: "#FFD700",
-    marginBottom: "1rem",
+    fontSize: '1.2rem',
+    color: '#FFD700',
+    marginBottom: '1rem',
   },
   statusTag: {
-    fontSize: "0.8rem",
-    color: "#00FFD0",
-    marginLeft: "0.5rem",
+    fontSize: '0.8rem',
+    color: '#00FFD0',
+    marginLeft: '0.5rem',
   },
   upcomingStatus: {
-    fontSize: "0.9rem",
-    color: "#888",
-    fontStyle: "italic",
-    float: "right",
+    fontSize: '0.9rem',
+    color: '#888',
+    fontStyle: 'italic',
+    float: 'right',
   },
   edit: {
-    fontSize: "0.9rem",
-    color: "#ccc",
-    float: "right",
+    fontSize: '0.9rem',
+    color: '#ccc',
+    float: 'right',
   },
   closed: {
-    fontSize: "0.9rem",
-    color: "#888",
-    float: "right",
-  },
-  teamRow: {
-    display: "flex",
-    flexDirection: "row",  // two side‑by‑side on desktop
-    gap: "2rem",
+    fontSize: '0.9rem',
+    color: '#888',
+    float: 'right',
   },
   teamLabel: {
-    fontWeight: "bold",
-    color: "#4CAF50",
-    marginBottom: "0.5rem",
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    marginBottom: '0.5rem',
   },
   player: {
-    color: "#ddd",
-    marginBottom: "0.3rem",
+    color: '#ddd',
+    marginBottom: '0.3rem',
   },
 };

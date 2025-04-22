@@ -1,25 +1,31 @@
-/* Global background & font setup */ 
-body {
+/* Reset html/body to full viewport */
+html, body {
+  width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
+}
+
+/* Global background & font setup */ 
+body {
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background: url('https://images.unsplash.com/photo-1555424221-250de2a343ad?fm=jpg&q=60&w=3000&ixlib=rb-4.0.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGl0dHNidXJnaHxlbnwwfHwwfHx8MA%3D%3D') no-repeat center center fixed;
   background-size: cover;
   color: white;
+  line-height: 1.4;
 }
 
 /* Overlay to darken the background for readability */
 .overlay {
-  position: relative;            /* ensure it spans full viewport */
-  width: 100vw;                  /* FULL WIDTH on mobile */
-  box-sizing: border-box;        /* include padding in width */
-  background-color: rgba(0, 0, 0, 0.7);
+  width: 100%;                  /* full width */
   min-height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
   padding: 4rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  box-sizing: border-box;
 }
 
 h1 {
