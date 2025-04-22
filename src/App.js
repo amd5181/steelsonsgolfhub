@@ -10,7 +10,6 @@ import LeagueHistory from "./pages/LeagueHistory";
 import TeamEntryForm from "./TeamEntryForm";
 import "./index.css";
 
-// ✅ Home inside router context
 function HomeWrapper() {
   return <Home />;
 }
@@ -27,31 +26,21 @@ function Home() {
   };
 
   const now = new Date();
-
   const tournamentCutoffs = {
-    Masters: new Date("2025-04-10T10:00:00-04:00"),
-    PGA: new Date("2025-05-15T10:00:00-04:00"),
+    Masters:   new Date("2025-04-10T10:00:00-04:00"),
+    PGA:       new Date("2025-05-15T10:00:00-04:00"),
     "US Open": new Date("2025-06-12T10:00:00-04:00"),
-    "The Open": new Date("2025-07-17T10:00:00-04:00"),
+    "The Open":new Date("2025-07-17T10:00:00-04:00"),
   };
-
-  const tournamentList = ["Masters", "PGA", "US Open", "The Open"];
+  const tournamentList = Object.keys(tournamentCutoffs);
 
   const getStatuses = () => {
     const results = {};
-    const extendedCutoffs = tournamentList.map((label) => {
-      const cutoff = tournamentCutoffs[label];
-      return {
-        label,
-        cutoff,
-        cutoffPlus7: new Date(cutoff.getTime() + 7 * 24 * 60 * 60 * 1000),
-      };
-    });
-
     let currentSet = false;
-    for (let i = 0; i < extendedCutoffs.length; i++) {
-      const { label, cutoffPlus7 } = extendedCutoffs[i];
-      if (now > cutoffPlus7) {
+    tournamentList.forEach((label) => {
+      const cutoff    = tournamentCutoffs[label];
+      const cutoff7   = new Date(cutoff.getTime() + 7 * 86400000);
+      if (now > cutoff7) {
         results[label] = "closed";
       } else if (!currentSet) {
         results[label] = "current";
@@ -59,42 +48,51 @@ function Home() {
       } else {
         results[label] = "upcoming";
       }
-    }
+    });
     return results;
   };
-
   const tournamentStatuses = getStatuses();
 
   return (
-    <div className="overlay">
+    <div className="overlay" style={{ textAlign: "center" }}>
+      {/* Header */}
       <h1>Steel Sons Golf Hub</h1>
       <h2>2025</h2>
 
+      {/* Email form */}
       <form
         onSubmit={handleSubmit}
-        style={{ textAlign: "center", width: "100%", marginBottom: "2rem" }}
+        style={{
+          width: "100%",
+          maxWidth: "360px",
+          margin: "0 auto 2rem",
+        }}
       >
-        <label htmlFor="email">My Teams</label>
+        <label htmlFor="email" style={{ display: "block", marginBottom: "0.5rem" }}>
+          My Teams
+        </label>
         <input
           id="email"
           type="email"
           placeholder="Enter email address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          style={{ margin: "0 auto", width: "100%" }}
         />
-        <br />
-        <button
-          type="submit"
-          className="submit-button"
-          style={{ marginTop: "1rem" }}
-        >
+        <button type="submit" className="submit-button" style={{ marginTop: "1rem" }}>
           Submit
         </button>
       </form>
 
+      {/* Tournament Leaderboards */}
       <h2 className="section-title">Tournament Leaderboards</h2>
-
-      <div className="grid-buttons">
+      <div
+        className="grid-buttons"
+        style={{
+          margin: "0 auto 2rem",
+          justifyItems: "center",
+        }}
+      >
         {tournamentList.map((label) => {
           const status = tournamentStatuses[label];
           return (
@@ -107,11 +105,18 @@ function Home() {
           );
         })}
       </div>
+
+      {/* League History button */}
+      <div style={{ margin: "1rem auto", maxWidth: "200px" }}>
+        <Link to="/history" className="history-button">
+          League History
+        </Link>
+      </div>
     </div>
   );
 }
 
-function NavLink({ label, path, status = "", className = "link-button" }) {
+function NavLink({ label, path, status = "" }) {
   const statusText =
     status === "current"
       ? "Current"
@@ -122,7 +127,7 @@ function NavLink({ label, path, status = "", className = "link-button" }) {
       : "";
 
   return (
-    <Link to={path} className={`${className} ${status}`}>
+    <Link to={path} className={`link-button ${status}`}>
       <div style={{ textAlign: "center" }}>
         {label}
         {statusText && <div className="status-text">{statusText}</div>}
@@ -131,17 +136,16 @@ function NavLink({ label, path, status = "", className = "link-button" }) {
   );
 }
 
-// ✅ NO <Router> here — it's already in index.js
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomeWrapper />} />
-      <Route path="/masters" element={<Masters />} />
-      <Route path="/us-open" element={<USOpen />} />
-      <Route path="/the-open" element={<TheOpen />} />
-      <Route path="/pga" element={<PGA />} />
-      <Route path="/my-teams" element={<MyTeams />} />
-      <Route path="/history" element={<LeagueHistory />} />
+      <Route path="/masters"   element={<Masters />} />
+      <Route path="/us-open"   element={<USOpen />} />
+      <Route path="/the-open"  element={<TheOpen />} />
+      <Route path="/pga"       element={<PGA />} />
+      <Route path="/my-teams"  element={<MyTeams />} />
+      <Route path="/history"   element={<LeagueHistory />} />
       <Route path="/enter/:tournament" element={<TeamEntryForm />} />
     </Routes>
   );
