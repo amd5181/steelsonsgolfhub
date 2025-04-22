@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 const TOURNAMENTS = ["Masters", "PGA", "US Open", "The Open"];
-
-// URLs for each tournament
 const urls = {
   Masters:
     "https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec",
@@ -19,13 +17,11 @@ export default function MyTeams() {
   const location = useLocation();
   const email = location.state?.email || "unknown";
 
-  // State: two teams per tournament
-  const [teamsByTournament, setTeamsByTournament] = useState(() =>
-    TOURNAMENTS.reduce((acc, t) => {
-      acc[t] = { 1: [], 2: [] };
-      return acc;
-    }, {})
-  );
+  // Separate state per tournament (as you originally had)
+  const [mastersTeams, setMastersTeams] = useState({ 1: [], 2: [] });
+  const [pgaTeams, setPgaTeams] = useState({ 1: [], 2: [] });
+  const [usOpenTeams, setUsOpenTeams] = useState({ 1: [], 2: [] });
+  const [theOpenTeams, setTheOpenTeams] = useState({ 1: [], 2: [] });
 
   const now = new Date();
   const cutoffTimes = {
@@ -35,72 +31,147 @@ export default function MyTeams() {
     "The Open": new Date("2025-07-17T10:00:00-04:00"),
   };
 
-  // Fetch each tournament’s teams once
+  // Fetch helper
   useEffect(() => {
-    TOURNAMENTS.forEach((tournament) => {
-      const apiUrl = `${urls[tournament]}?email=${encodeURIComponent(email)}`;
-      fetch(apiUrl)
-        .then((r) => r.json())
-        .then((data) => {
-          const teams = { 1: [], 2: [] };
-          data.forEach((entry) => {
-            const teamNum = entry.Team.includes("(2)") ? 2 : 1;
-            teams[teamNum].push(entry.Golfer);
-          });
-          setTeamsByTournament((prev) => ({
-            ...prev,
-            [tournament]: {
-              1: teams[1].length === 5 ? teams[1] : [],
-              2: teams[2].length === 5 ? teams[2] : [],
-            },
-          }));
-        })
-        .catch((err) =>
-          console.error("Error fetching teams for", tournament, err)
-        );
-    });
+    async function fetchTeams(url, setter) {
+      try {
+        const resp = await fetch(`${url}?email=${encodeURIComponent(email)}`);
+        const data = await resp.json();
+        const teams = { 1: [], 2: [] };
+        data.forEach((entry) => {
+          const teamNum = entry.Team.includes("(2)") ? 2 : 1;
+          teams[teamNum].push(entry.Golfer);
+        });
+        setter({
+          1: teams[1].length === 5 ? teams[1] : [],
+          2: teams[2].length === 5 ? teams[2] : [],
+        });
+      } catch (err) {
+        console.error("Error fetching teams:", err);
+        setter({ 1: [], 2: [] });
+      }
+    }
+
+    fetchTeams(`${urls.Masters}`, setMastersTeams);
+    fetchTeams(`${urls.PGA}`, setPgaTeams);
+    fetchTeams(`${urls["US Open"]}`, setUsOpenTeams);
+    fetchTeams(`${urls["The Open"]}`, setTheOpenTeams);
   }, [email]);
+
+  // Determine statuses: closed, current, upcoming
+  const getTournamentStatuses = () => {
+    const statuses = {};
+    let currentSet = false;
+
+    TOURNAMENTS.forEach((t) => {
+      const cutoff = cutoffTimes[t];
+      const cutoffPlus7 = new Date(cutoff.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      if (now > cutoffPlus7) {
+        statuses[t] = "closed";
+      } else if (!currentSet && now < cutoffPlus7) {
+        statuses[t] = "current";
+        currentSet = true;
+      } else {
+        statuses[t] = "upcoming";
+      }
+    });
+
+    return statuses;
+  };
+
+  const tournamentStatuses = getTournamentStatuses();
 
   return (
     <div className="overlay" style={{ paddingTop: "2rem" }}>
-      <h2 style={{ color: "#FFD700", marginBottom: "1rem" }}>
+      {/* ——— Nav Header ——— */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "1200px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginBottom: "2rem",
+        }}
+      >
+        <h1 style={styles.title}>Steel Sons Golf Hub</h1>
+        <div style={{ display: "flex", gap: "1rem", marginTop: "0.5rem" }}>
+          <Link to="/" style={styles.navLink}>
+            Home
+          </Link>
+          <Link to="/history" style={styles.navLink}>
+            History
+          </Link>
+        </div>
+      </div>
+
+      {/* ——— Email Header ——— */}
+      <h2 style={styles.emailHeader}>
         My Teams — <span style={{ fontWeight: 700 }}>{email}</span>
       </h2>
 
+      {/* ——— The Grid ——— */}
       <div className="teams-grid">
         {TOURNAMENTS.map((tournament) => {
-          const teams = teamsByTournament[tournament] || { 1: [], 2: [] };
-          const cutoff = cutoffTimes[tournament];
-          const cutoffPlus7 = new Date(
-            cutoff.getTime() + 7 * 24 * 60 * 60 * 1000
-          );
-
-          let statusElem;
-          if (now > cutoffPlus7) {
-            statusElem = <span style={{ color: "#f00" }}>Entries Closed</span>;
-          } else if (now < cutoff) {
-            statusElem = (
-              <a
-                href={`${urls[tournament]}?email=${encodeURIComponent(email)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "#0f0" }}
-              >
-                Enter/Edit
-              </a>
-            );
-          } else {
-            statusElem = <span style={{ color: "#0af" }}>Current</span>;
+          let teams, formLink;
+          switch (tournament) {
+            case "Masters":
+              teams = mastersTeams;
+              formLink = `${urls.Masters}?email=${encodeURIComponent(email)}`;
+              break;
+            case "PGA":
+              teams = pgaTeams;
+              formLink = `${urls.PGA}?email=${encodeURIComponent(email)}`;
+              break;
+            case "US Open":
+              teams = usOpenTeams;
+              formLink = `${urls["US Open"]}?email=${encodeURIComponent(email)}`;
+              break;
+            case "The Open":
+              teams = theOpenTeams;
+              formLink = `${urls["The Open"]}?email=${encodeURIComponent(email)}`;
+              break;
+            default:
+              teams = { 1: [], 2: [] };
+              formLink = "#";
           }
 
+          const status = tournamentStatuses[tournament];
+          const cutoff = cutoffTimes[tournament];
+          const cutoffPlus7 = new Date(cutoff.getTime() + 7 * 24 * 60 * 60 * 1000);
+
           return (
-            <div key={tournament} className="team-card">
-              <h3 style={{ marginBottom: "1rem", color: "#FFD700" }}>
-                {tournament} {statusElem}
+            <div
+              key={tournament}
+              className={status === "current" ? "glow-border team-card" : "team-card"}
+              style={styles.card}
+            >
+              <h3 style={styles.cardTitle}>
+                <u>{tournament}</u>
+                {/* Status Tag */}
+                {status === "current" && (
+                  <span style={styles.statusTag}>Current</span>
+                )}
+                {status === "upcoming" ? (
+                  <span style={styles.upcomingStatus}>Upcoming</span>
+                ) : now < cutoff ? (
+                  <a
+                    href={formLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={styles.edit}
+                  >
+                    Enter/Edit
+                  </a>
+                ) : (
+                  <span style={styles.closed}>Entries Closed</span>
+                )}
               </h3>
-              <div className="team-row">
-                <TeamList teamName="Team 1" players={teams[1]} />
-                <TeamList teamName="Team 2" players={teams[2]} />
+
+              <div style={styles.teamRow}>
+                <TeamList teamName="Team 1" players={teams[1]} />
+                <TeamList teamName="Team 2" players={teams[2]} />
               </div>
             </div>
           );
@@ -110,15 +181,15 @@ export default function MyTeams() {
   );
 }
 
-// Local TeamList component (only declared once)
+// ——— TeamList (unchanged) ———
 function TeamList({ teamName, players }) {
   return (
     <div style={{ flex: 1 }}>
-      <p style={{ fontWeight: "bold", color: "#4CAF50" }}>{teamName}</p>
+      <p style={styles.teamLabel}>{teamName}</p>
       {players.length === 5 ? (
         <ul style={{ listStyle: "none", padding: 0 }}>
           {players.map((p, i) => (
-            <li key={i} style={{ color: "#ddd", marginBottom: "0.3rem" }}>
+            <li key={i} style={styles.player}>
               {p}
             </li>
           ))}
@@ -129,3 +200,80 @@ function TeamList({ teamName, players }) {
     </div>
   );
 }
+
+// ——— Inline style objects you’d defined ———
+const styles = {
+  title: {
+    fontFamily: "'Playfair Display', serif",
+    fontSize: "2rem",
+    color: "#FFD700",
+    textAlign: "center",
+    textShadow: "1px 1px 2px rgba(0,0,0,0.6)",
+  },
+  navLink: {
+    fontSize: "0.95rem",
+    color: "#FFD700",
+    textDecoration: "none",
+    fontWeight: "600",
+    padding: "0.25rem 0.5rem",
+    border: "1px solid #FFD700",
+    borderRadius: "6px",
+    transition: "all 0.2s ease",
+  },
+  emailHeader: {
+    color: "white",
+    fontSize: "1.1rem",
+    marginBottom: "2rem",
+    fontWeight: 500,
+    textAlign: "center",
+  },
+  card: {
+    backgroundColor: "rgba(0, 0, 0, 0.65)",
+    borderRadius: "12px",
+    padding: "1.5rem",
+    margin: "0.5rem",
+  },
+  cardTitle: {
+    fontSize: "1.2rem",
+    color: "#FFD700",
+    marginBottom: "1rem",
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+  },
+  statusTag: {
+    fontSize: "0.8rem",
+    color: "#00FFD0",
+    marginLeft: "0.5rem",
+  },
+  upcomingStatus: {
+    marginLeft: "auto",
+    fontSize: "0.9rem",
+    color: "#888",
+    fontStyle: "italic",
+  },
+  edit: {
+    marginLeft: "auto",
+    fontSize: "0.9rem",
+    color: "#0f0",
+  },
+  closed: {
+    marginLeft: "auto",
+    fontSize: "0.9rem",
+    color: "#f00",
+  },
+  teamRow: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1rem",
+  },
+  teamLabel: {
+    fontWeight: "bold",
+    color: "#4CAF50",
+    marginBottom: "0.5rem",
+  },
+  player: {
+    color: "#ddd",
+    marginBottom: "0.3rem",
+  },
+};
