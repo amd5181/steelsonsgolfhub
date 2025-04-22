@@ -4,16 +4,20 @@ import { useLocation, Link } from "react-router-dom";
 const TOURNAMENTS = ["Masters", "PGA", "US Open", "The Open"];
 
 export default function MyTeams() {
-  const { state } = useLocation();
-  const initialEmail = state?.email || "";
-  const [currentEmail, setCurrentEmail] = useState(initialEmail);
-  const [newEmail, setNewEmail] = useState(initialEmail);
+  // —— grab the email from router state exactly as before
+  const location = useLocation();
+  const email = location.state?.email || "";
+
+  // —— local state
+  const [currentEmail, setCurrentEmail] = useState(email);
+  const [newEmail, setNewEmail] = useState(email);
 
   const [mastersTeams, setMastersTeams] = useState({ 1: [], 2: [] });
   const [pgaTeams, setPgaTeams] = useState({ 1: [], 2: [] });
   const [usOpenTeams, setUsOpenTeams] = useState({ 1: [], 2: [] });
   const [theOpenTeams, setTheOpenTeams] = useState({ 1: [], 2: [] });
 
+  // —— tournament cutoff times
   const now = new Date();
   const cutoffTimes = {
     Masters:   new Date("2025-04-10T10:00:00-04:00"),
@@ -22,11 +26,10 @@ export default function MyTeams() {
     "The Open":new Date("2025-07-17T10:00:00-04:00"),
   };
 
-  // Fetch team data whenever currentEmail changes
+  // —— fetch teams whenever currentEmail changes
   useEffect(() => {
-    async function fetchTeams(baseUrl, setter) {
+    async function fetchTeams(url, setter) {
       try {
-        const url = `${baseUrl}?email=${encodeURIComponent(currentEmail)}`;
         const resp = await fetch(url);
         const data = await resp.json();
         const teams = { 1: [], 2: [] };
@@ -39,35 +42,32 @@ export default function MyTeams() {
           2: teams[2].length === 5 ? teams[2] : [],
         });
       } catch (err) {
-        console.error("Error fetching teams:", err);
+        console.error("Error fetching teams for", url, err);
         setter({ 1: [], 2: [] });
       }
     }
 
-    // your exact original Apps Script exec URLs
+    // —— your **exact original** fetch URLs with email query
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(email)}`,
       setMastersTeams
     );
-
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(email)}`,
       setPgaTeams
     );
-
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(email)}`,
       setUsOpenTeams
     );
-
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}&mode=json`,
       setTheOpenTeams
     );
   }, [currentEmail]);
 
-  // Determine closed/current/upcoming
-  const getTournamentStatuses = () => {
+  // —— compute statuses
+  function getTournamentStatuses() {
     const statuses = {};
     let currentSet = false;
     TOURNAMENTS.forEach((t) => {
@@ -83,10 +83,10 @@ export default function MyTeams() {
       }
     });
     return statuses;
-  };
+  }
   const tournamentStatuses = getTournamentStatuses();
 
-  // Change‑email form handler
+  // —— handle change-email submit
   const handleEmailChange = (e) => {
     e.preventDefault();
     setCurrentEmail(newEmail.trim());
@@ -97,12 +97,11 @@ export default function MyTeams() {
       {/* Nav header */}
       <div
         style={{
-          width: "100%",
-          maxWidth: "1200px",
-          margin: "0 auto 2rem",
           display: "flex",
           justifyContent: "center",
           gap: "1rem",
+          marginBottom: "2rem",
+          flexWrap: "wrap",
         }}
       >
         <Link to="/" style={styles.navLink}>Home</Link>
@@ -113,32 +112,39 @@ export default function MyTeams() {
       {/* Change Email */}
       <form
         onSubmit={handleEmailChange}
-        style={{ marginBottom: "2rem", maxWidth: "360px", margin: "0 auto" }}
+        style={{
+          margin: "0 auto 2rem",
+          maxWidth: "360px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.5rem",
+        }}
       >
         <input
           type="email"
           placeholder="Change email"
           value={newEmail}
           onChange={(e) => setNewEmail(e.target.value)}
-          style={{ width: "100%", marginBottom: "0.5rem" }}
+          style={{ width: "100%" }}
         />
-        <button type="submit" className="submit-button" style={{ width: "100%" }}>
-          Change Email
-        </button>
+        <button type="submit" className="submit-button">Change Email</button>
       </form>
 
+      {/* Current email display */}
       <h2 style={styles.emailHeader}>
         My Teams — <span style={{ fontWeight: 700 }}>{currentEmail}</span>
       </h2>
 
-      {/* Links to leaderboards */}
-      <div style={{
+      {/* Leaderboard links */}
+      <div
+        style={{
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "center",
           gap: "1rem",
           marginBottom: "2rem",
-        }}>
+        }}
+      >
         {TOURNAMENTS.map((t) => (
           <Link
             key={t}
@@ -150,37 +156,52 @@ export default function MyTeams() {
         ))}
       </div>
 
-      {/* Teams grid */}
+      {/* 2×2 on desktop, 1‑column on mobile */}
       <div className="teams-grid">
-        {TOURNAMENTS.map((t, idx) => {
+        {TOURNAMENTS.map((tournament, idx) => {
           let teams = { 1: [], 2: [] };
-          let formBase = "";
-          if (t === "Masters") formBase = "https://script.google.com/macros/s/AKfycbyM_KcivAteMOC_SAKZZkMBDEfqj9ep7gfFOzIxTn2LtDSTfs-O_O1McU9D8jmbADOfhw/exec";
-          else if (t === "PGA") formBase = "https://script.google.com/macros/s/AKfycbz44QE8_JF30JJ5DlGn1LbNj61-G8TIfHre8ysmj2RV0yRsymMBKcP5A8hbgvaMWChgRw/exec";
-          else if (t === "US Open") formBase = "https://script.google.com/macros/s/AKfycbw4lNEjB79XT1yc1NtSJ8_hd9v9xG0oyqvEDfZGR6hYoIikQhp8ndx4KHv5cEZBPs1LCQ/exec";
-          else formBase = "https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec";
+          let formLink = "#";
 
-          if (t === "Masters") teams = mastersTeams;
-          if (t === "PGA")     teams = pgaTeams;
-          if (t === "US Open") teams = usOpenTeams;
-          if (t === "The Open")teams = theOpenTeams;
+          if (tournament === "Masters") {
+            teams = mastersTeams;
+            formLink = `https://script.google.com/macros/s/AKfycbyM_KcivAteMOC_SAKZZkMBDEfqj9ep7gfFOzIxTn2LtDSTfs-O_O1McU9D8jmbADOfhw/exec?email=${encodeURIComponent(email)}`;
+          } else if (tournament === "PGA") {
+            teams = pgaTeams;
+            formLink = `https://script.google.com/macros/s/AKfycbz44QE8_JF30JJ5DlGn1LbNj61-G8TIfHre8ysmj2RV0yRsymMBKcP5A8hbgvaMWChgRw/exec?email=${encodeURIComponent(email)}`;
+          } else if (tournament === "US Open") {
+            teams = usOpenTeams;
+            formLink = `https://script.google.com/macros/s/AKfycbw4lNEjB79XT1yc1NtSJ8_hd9v9xG0oyqvEDfZGR6hYoIikQhp8ndx4KHv5cEZBPs1LCQ/exec?email=${encodeURIComponent(email)}`;
+          } else if (tournament === "The Open") {
+            teams = theOpenTeams;
+            formLink = `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}`;
+          }
 
-          const formLink = `${formBase}?email=${encodeURIComponent(currentEmail)}`;
-          const status = tournamentStatuses[t];
+          const status = tournamentStatuses[tournament];
 
           return (
             <div
               key={idx}
-              className={status === "current" ? "glow-border team-card" : "team-card"}
+              className={
+                status === "current"
+                  ? "glow-border team-card"
+                  : "team-card"
+              }
               style={styles.card}
             >
               <h3 style={styles.cardTitle}>
-                <u>{t}</u>
-                {status === "current" && <span style={styles.statusTag}>Current</span>}
+                <u>{tournament}</u>
+                {status === "current" && (
+                  <span style={styles.statusTag}>Current</span>
+                )}
                 {status === "upcoming" ? (
                   <span style={styles.upcomingStatus}>Upcoming</span>
-                ) : now < cutoffTimes[t] ? (
-                  <a href={formLink} target="_blank" rel="noreferrer" style={styles.edit}>
+                ) : now < cutoffTimes[tournament] ? (
+                  <a
+                    href={formLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={styles.edit}
+                  >
                     Enter/Edit
                   </a>
                 ) : (
@@ -188,8 +209,8 @@ export default function MyTeams() {
                 )}
               </h3>
               <div className="team-row">
-                <TeamList teamName="Team 1" players={teams[1]} />
-                <TeamList teamName="Team 2" players={teams[2]} />
+                <TeamList teamName="Team 1" players={teams[1]} />
+                <TeamList teamName="Team 2" players={teams[2]} />
               </div>
             </div>
           );
@@ -227,7 +248,6 @@ const styles = {
     borderRadius: "6px",
     transition: "all 0.2s ease",
   },
-  title: { /* omitted—your existing title styles */ },
   emailHeader: {
     color: "white",
     fontSize: "1.1rem",
@@ -249,10 +269,33 @@ const styles = {
     alignItems: "center",
     gap: "0.5rem",
   },
-  statusTag: { fontSize: "0.8rem", color: "#00FFD0" },
-  upcomingStatus: { marginLeft: "auto", fontSize: "0.9rem", color: "#888", fontStyle: "italic" },
-  edit:           { marginLeft: "auto", fontSize: "0.9rem", color: "#0f0" },
-  closed:         { marginLeft: "auto", fontSize: "0.9rem", color: "#f00" },
-  teamLabel:      { fontWeight: "bold", color: "#4CAF50", marginBottom: "0.5rem" },
-  player:         { color: "#ddd", marginBottom: "0.3rem" },
+  statusTag: {
+    fontSize: "0.8rem",
+    color: "#00FFD0",
+  },
+  upcomingStatus: {
+    marginLeft: "auto",
+    fontSize: "0.9rem",
+    color: "#888",
+    fontStyle: "italic",
+  },
+  edit: {
+    marginLeft: "auto",
+    fontSize: "0.9rem",
+    color: "#0f0",
+  },
+  closed: {
+    marginLeft: "auto",
+    fontSize: "0.9rem",
+    color: "#f00",
+  },
+  teamLabel: {
+    fontWeight: "bold",
+    color: "#4CAF50",
+    marginBottom: "0.5rem",
+  },
+  player: {
+    color: "#ddd",
+    marginBottom: "0.3rem",
+  },
 };
