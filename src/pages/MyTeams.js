@@ -20,22 +20,24 @@ export default function MyTeams() {
   };
 
   useEffect(() => {
-    async function fetchTeams(url, setter) {
+    async function fetchTeams(url, setFunc) {
       try {
         const response = await fetch(url);
         const data = await response.json();
         const teams = { 1: [], 2: [] };
+
         data.forEach((entry) => {
           const teamNum = entry.Team.includes("(2)") ? 2 : 1;
           teams[teamNum].push(entry.Golfer);
         });
-        setter({
+
+        setFunc({
           1: teams[1].length === 5 ? teams[1] : [],
           2: teams[2].length === 5 ? teams[2] : [],
         });
       } catch (err) {
         console.error("Error fetching teams:", err);
-        setter({ 1: [], 2: [] });
+        setFunc({ 1: [], 2: [] });
       }
     }
 
@@ -43,14 +45,17 @@ export default function MyTeams() {
       `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(email)}`,
       setMastersTeams
     );
+
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(email)}`,
       setPgaTeams
     );
+
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(email)}`,
       setUsOpenTeams
     );
+
     fetchTeams(
       `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}&mode=json`,
       setTheOpenTeams
@@ -61,17 +66,17 @@ export default function MyTeams() {
     const statuses = {};
     let currentSet = false;
 
-    TOURNAMENTS.forEach((t) => {
-      const cutoff = cutoffTimes[t];
+    TOURNAMENTS.forEach((tournament) => {
+      const cutoff = cutoffTimes[tournament];
       const cutoffPlus7 = new Date(cutoff.getTime() + 7 * 24 * 60 * 60 * 1000);
 
       if (now > cutoffPlus7) {
-        statuses[t] = "closed";
+        statuses[tournament] = "closed";
       } else if (!currentSet && now < cutoffPlus7) {
-        statuses[t] = "current";
+        statuses[tournament] = "current";
         currentSet = true;
       } else {
-        statuses[t] = "upcoming";
+        statuses[tournament] = "upcoming";
       }
     });
 
@@ -107,11 +112,7 @@ export default function MyTeams() {
         My Teams — <span style={{ fontWeight: "700" }}>{email}</span>
       </h2>
 
-      {/*
-         ** THE ONLY CHANGE BELOW **
-         gridTemplateColumns now auto‑fits two columns of at least 320px,
-         collapsing to one column on narrow screens.
-      */}
+      {/* 2×2 on desktop, 1×n on mobile */}
       <div
         style={{
           display: "grid",
@@ -121,7 +122,7 @@ export default function MyTeams() {
           margin: "0 auto",
         }}
       >
-        {TOURNAMENTS.map((tournament, idx) => {
+        {TOURNAMENTS.map((tournament, index) => {
           let teams = { 1: [], 2: [] };
           let formLink = "#";
 
@@ -140,19 +141,27 @@ export default function MyTeams() {
           }
 
           const status = tournamentStatuses[tournament];
+
           return (
             <div
-              key={idx}
+              key={index}
               className={status === "current" ? "glow-border" : ""}
               style={styles.card}
             >
               <h3 style={styles.cardTitle}>
                 <u>{tournament}</u>
-                {status === "current" && <span style={styles.statusTag}>Current</span>}
+                {status === "current" && (
+                  <span style={styles.statusTag}>Current</span>
+                )}
                 {status === "upcoming" ? (
                   <span style={styles.upcomingStatus}>Upcoming</span>
                 ) : now < cutoffTimes[tournament] ? (
-                  <a href={formLink} target="_blank" rel="noreferrer" style={styles.edit}>
+                  <a
+                    href={formLink}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={styles.edit}
+                  >
                     Enter/Edit
                   </a>
                 ) : (
@@ -252,7 +261,7 @@ const styles = {
   },
   teamRow: {
     display: "flex",
-    flexDirection: "row",
+    flexDirection: "row",  // two side‑by‑side on desktop
     gap: "2rem",
   },
   teamLabel: {

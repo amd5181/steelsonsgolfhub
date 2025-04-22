@@ -1,4 +1,4 @@
-/* Global background & font setup */
+/* Global background & font setup */ 
 body {
   margin: 0;
   padding: 0;
@@ -10,6 +10,9 @@ body {
 
 /* Overlay to darken the background for readability */
 .overlay {
+  position: relative;            /* ensure it spans full viewport */
+  width: 100vw;                  /* FULL WIDTH on mobile */
+  box-sizing: border-box;        /* include padding in width */
   background-color: rgba(0, 0, 0, 0.7);
   min-height: 100vh;
   padding: 4rem 2rem;
@@ -326,7 +329,6 @@ button.submit-button:hover {
   }
 }
 
-
 /* ===========================
    GLOBAL MOBILE / DESKTOP FIXES
    =========================== */
@@ -402,5 +404,14 @@ button.submit-button:hover {
   }
   .team-row > * {
     flex: 1;
+  }
+}
+
+/* ===========================
+   FORCE SINGLE COLUMN ON PHONES
+   =========================== */
+@media (max-width: 640px) {
+  .teams-grid {
+    grid-template-columns: 1fr !important;
   }
 }
