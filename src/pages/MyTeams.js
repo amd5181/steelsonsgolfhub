@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import TeamList from "../TeamEntryForm"; // adjust if your TeamList component is elsewhere
 
 const TOURNAMENTS = ["Masters", "PGA", "US Open", "The Open"];
 
-// URLs for each tournament form JSON
+// URLs for each tournament
 const urls = {
   Masters:
     "https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec",
@@ -20,7 +19,7 @@ export default function MyTeams() {
   const location = useLocation();
   const email = location.state?.email || "unknown";
 
-  // State per tournament: two teams
+  // State: two teams per tournament
   const [teamsByTournament, setTeamsByTournament] = useState(() =>
     TOURNAMENTS.reduce((acc, t) => {
       acc[t] = { 1: [], 2: [] };
@@ -28,7 +27,6 @@ export default function MyTeams() {
     }, {})
   );
 
-  // Cutoff times
   const now = new Date();
   const cutoffTimes = {
     Masters: new Date("2025-04-10T10:00:00-04:00"),
@@ -37,7 +35,7 @@ export default function MyTeams() {
     "The Open": new Date("2025-07-17T10:00:00-04:00"),
   };
 
-  // Fetch each tournament’s teams
+  // Fetch each tournament’s teams once
   useEffect(() => {
     TOURNAMENTS.forEach((tournament) => {
       const apiUrl = `${urls[tournament]}?email=${encodeURIComponent(email)}`;
@@ -65,12 +63,10 @@ export default function MyTeams() {
 
   return (
     <div className="overlay" style={{ paddingTop: "2rem" }}>
-      {/* Page heading */}
       <h2 style={{ color: "#FFD700", marginBottom: "1rem" }}>
         My Teams — <span style={{ fontWeight: 700 }}>{email}</span>
       </h2>
 
-      {/* Grid of tournament cards */}
       <div className="teams-grid">
         {TOURNAMENTS.map((tournament) => {
           const teams = teamsByTournament[tournament] || { 1: [], 2: [] };
@@ -78,6 +74,7 @@ export default function MyTeams() {
           const cutoffPlus7 = new Date(
             cutoff.getTime() + 7 * 24 * 60 * 60 * 1000
           );
+
           let statusElem;
           if (now > cutoffPlus7) {
             statusElem = <span style={{ color: "#f00" }}>Entries Closed</span>;
@@ -101,7 +98,6 @@ export default function MyTeams() {
               <h3 style={{ marginBottom: "1rem", color: "#FFD700" }}>
                 {tournament} {statusElem}
               </h3>
-              {/* Two teams: side‑by‑side on desktop, stacked on mobile */}
               <div className="team-row">
                 <TeamList teamName="Team 1" players={teams[1]} />
                 <TeamList teamName="Team 2" players={teams[2]} />
@@ -114,7 +110,7 @@ export default function MyTeams() {
   );
 }
 
-// If your old file had a separate TeamList component, keep it here:
+// Local TeamList component (only declared once)
 function TeamList({ teamName, players }) {
   return (
     <div style={{ flex: 1 }}>
