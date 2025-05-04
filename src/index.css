@@ -71,6 +71,11 @@ body, html {
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
+.emoji-nav a {
+  text-decoration: none;
+}
+
+
 .emoji-link:hover {
   transform: scale(1.2);
   color: white;
