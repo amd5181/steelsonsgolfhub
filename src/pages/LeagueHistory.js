@@ -38,9 +38,8 @@ export default function LeagueHistory() {
     .slice(0, 3);
 
   return (
-    <div style={styles.page}>
-      <div style={styles.backLink}>
-        <Link to="/" style={styles.backAnchor}>← Back to Homepage</Link>
+<div style={{ ...styles.page, position: "relative", zIndex: 1 }}>
+<div style={styles.backLink}>
       </div>
 
       <h1 style={styles.header}>Hall of Champions</h1>
@@ -107,8 +106,6 @@ const cards = [
 const styles = {
   page: {
     fontFamily: "'Inter', sans-serif",
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    backdropFilter: "blur(2px)",
     color: "white",
     minHeight: "100vh",
     padding: "1rem",

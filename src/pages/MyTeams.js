@@ -1,32 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const TOURNAMENTS = ["Masters", "PGA", "US Open", "The Open"];
 
 export default function MyTeams() {
-  // —— grab the email from router state exactly as before
   const location = useLocation();
-  const email = location.state?.email || "";
+  const emailFromRoute = location.state?.email || "";
 
-  // —— local state
-  const [currentEmail, setCurrentEmail] = useState(email);
-  const [newEmail, setNewEmail] = useState(email);
+  const [currentEmail, setCurrentEmail] = useState(emailFromRoute);
+  const [newEmail, setNewEmail] = useState(emailFromRoute);
 
   const [mastersTeams, setMastersTeams] = useState({ 1: [], 2: [] });
   const [pgaTeams, setPgaTeams] = useState({ 1: [], 2: [] });
   const [usOpenTeams, setUsOpenTeams] = useState({ 1: [], 2: [] });
   const [theOpenTeams, setTheOpenTeams] = useState({ 1: [], 2: [] });
 
-  // —— tournament cutoff times
   const now = new Date();
   const cutoffTimes = {
-    Masters:   new Date("2025-04-10T10:00:00-04:00"),
-    PGA:       new Date("2025-05-15T10:00:00-04:00"),
+    Masters: new Date("2025-04-10T10:00:00-04:00"),
+    PGA: new Date("2025-05-15T10:00:00-04:00"),
     "US Open": new Date("2025-06-12T10:00:00-04:00"),
-    "The Open":new Date("2025-07-17T10:00:00-04:00"),
+    "The Open": new Date("2025-07-17T10:00:00-04:00"),
   };
 
-  // —— fetch teams whenever currentEmail changes
   useEffect(() => {
     async function fetchTeams(url, setter) {
       try {
@@ -42,180 +38,132 @@ export default function MyTeams() {
           2: teams[2].length === 5 ? teams[2] : [],
         });
       } catch (err) {
-        console.error("Error fetching teams for", url, err);
+        console.error("Error fetching teams:", err);
         setter({ 1: [], 2: [] });
       }
     }
 
-    // —— your **exact original** fetch URLs with email query
-    fetchTeams(
-      `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(email)}`,
-      setMastersTeams
-    );
-    fetchTeams(
-      `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(email)}`,
-      setPgaTeams
-    );
-    fetchTeams(
-      `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(email)}`,
-      setUsOpenTeams
-    );
-    fetchTeams(
-      `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}&mode=json`,
-      setTheOpenTeams
-    );
+    if (currentEmail) {
+      fetchTeams(
+        `https://script.google.com/macros/s/AKfycbzwgBuOrnxHL8qgDPM7JtwjKrdPiF3cOvxkGln3hBp5E-ApEbEfsE5v125ioFFeW46Mrg/exec?email=${encodeURIComponent(currentEmail)}`,
+        setMastersTeams
+      );
+      fetchTeams(
+        `https://script.google.com/macros/s/AKfycbxER3yi16qh1MPN3W7Ta-L3TrE6mG9CqytsCVAatHvMbbuv-VAW3-3alTMDGF7ySdCufQ/exec?email=${encodeURIComponent(currentEmail)}`,
+        setPgaTeams
+      );
+      fetchTeams(
+        `https://script.google.com/macros/s/AKfycbwo0R6zFKsOfyxgns-v5ubBUfqjRXjllvH1FpLDcK3As4Byb2O_hG7k3QbQxvY2iOw5RA/exec?email=${encodeURIComponent(currentEmail)}`,
+        setUsOpenTeams
+      );
+      fetchTeams(
+        `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(currentEmail)}&mode=json`,
+        setTheOpenTeams
+      );
+    }
   }, [currentEmail]);
 
-  // —— compute statuses
-  function getTournamentStatuses() {
-    const statuses = {};
-    let currentSet = false;
-    TOURNAMENTS.forEach((t) => {
-      const cutoff = cutoffTimes[t];
-      const cutoffPlus7 = new Date(cutoff.getTime() + 7 * 24 * 60 * 60 * 1000);
-      if (now > cutoffPlus7) {
-        statuses[t] = "closed";
-      } else if (!currentSet) {
-        statuses[t] = "current";
-        currentSet = true;
-      } else {
-        statuses[t] = "upcoming";
-      }
-    });
-    return statuses;
-  }
-  const tournamentStatuses = getTournamentStatuses();
-
-  // —— handle change-email submit
   const handleEmailChange = (e) => {
     e.preventDefault();
-    setCurrentEmail(newEmail.trim());
+    const trimmed = newEmail.trim();
+    if (trimmed && trimmed !== currentEmail) {
+      setCurrentEmail(trimmed);
+    }
+  };
+
+  // Determine the next tournament
+  function getNextTournamentKey() {
+    for (let t of TOURNAMENTS) {
+      if (now < cutoffTimes[t]) return t;
+    }
+    return null;
+  }
+
+  const nextTournament = getNextTournamentKey();
+
+  const allTeamData = {
+    Masters: mastersTeams,
+    PGA: pgaTeams,
+    "US Open": usOpenTeams,
+    "The Open": theOpenTeams,
   };
 
   return (
-    <div className="overlay" style={{ paddingTop: "2rem", textAlign: "center" }}>
-      {/* Nav header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "1rem",
-          marginBottom: "2rem",
-          flexWrap: "wrap",
-        }}
-      >
-        <Link to="/" style={styles.navLink}>Home</Link>
-        <Link to="/history" style={styles.navLink}>History</Link>
-        <Link to="/leaderboards" style={styles.navLink}>Leaderboards</Link>
-      </div>
-
-      {/* Change Email */}
-      <form
-        onSubmit={handleEmailChange}
-        style={{
-          margin: "0 auto 2rem",
-          maxWidth: "360px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.5rem",
-        }}
-      >
+<div style={{ padding: "2rem", position: "relative", zIndex: 1 }}>
+<form onSubmit={handleEmailChange} className="email-form">
         <input
           type="email"
-          placeholder="Change email"
+          placeholder="Enter your email"
           value={newEmail}
           onChange={(e) => setNewEmail(e.target.value)}
-          style={{ width: "100%" }}
+          className="email-input"
         />
-        <button type="submit" className="submit-button">Change Email</button>
+        <button type="submit" className="submit-button">Submit</button>
       </form>
 
-      {/* Current email display */}
-      <h2 style={styles.emailHeader}>
-        My Teams — <span style={{ fontWeight: 700 }}>{currentEmail}</span>
-      </h2>
-
-      {/* Leaderboard links */}
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          gap: "1rem",
-          marginBottom: "2rem",
-        }}
-      >
-        {TOURNAMENTS.map((t) => (
-          <Link
-            key={t}
-            to={`/leaderboards/${t.toLowerCase().replace(/ /g, "")}`}
-            style={styles.navLink}
-          >
-            {t} Leaderboard
-          </Link>
-        ))}
+      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+        <h2 style={{ marginBottom: "0.3rem" }}>My Teams</h2>
+        {currentEmail && (
+          <div style={{ fontWeight: 600, color: "#FFD700" }}>{currentEmail}</div>
+        )}
       </div>
 
-      {/* 2×2 on desktop, 1‑column on mobile */}
-      <div className="teams-grid">
-        {TOURNAMENTS.map((tournament, idx) => {
-          let teams = { 1: [], 2: [] };
-          let formLink = "#";
+      {currentEmail ? (
+        <div className="teams-grid">
+          {TOURNAMENTS.map((t, idx) => {
+            const teams = allTeamData[t];
+            const cutoff = cutoffTimes[t];
+            const isCurrent = now < cutoff && t === nextTournament;
+            const isClosed = now >= cutoff;
+            let formLink = "#";
+            if (t === "Masters") {
+              formLink = `https://script.google.com/macros/s/AKfycbyM_KcivAteMOC_SAKZZkMBDEfqj9ep7gfFOzIxTn2LtDSTfs-O_O1McU9D8jmbADOfhw/exec?email=${encodeURIComponent(currentEmail)}`;
+            } else if (t === "PGA") {
+              formLink = `https://script.google.com/macros/s/AKfycbz44QE8_JF30JJ5DlGn1LbNj61-G8TIfHre8ysmj2RV0yRsymMBKcP5A8hbgvaMWChgRw/exec?email=${encodeURIComponent(currentEmail)}`;
+            } else if (t === "US Open") {
+              formLink = `https://script.google.com/macros/s/AKfycbw4lNEjB79XT1yc1NtSJ8_hd9v9xG0oyqvEDfZGR6hYoIikQhp8ndx4KHv5cEZBPs1LCQ/exec?email=${encodeURIComponent(currentEmail)}`;
+            } else if (t === "The Open") {
+              formLink = `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(currentEmail)}`;
+            }
 
-          if (tournament === "Masters") {
-            teams = mastersTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbyM_KcivAteMOC_SAKZZkMBDEfqj9ep7gfFOzIxTn2LtDSTfs-O_O1McU9D8jmbADOfhw/exec?email=${encodeURIComponent(email)}`;
-          } else if (tournament === "PGA") {
-            teams = pgaTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbz44QE8_JF30JJ5DlGn1LbNj61-G8TIfHre8ysmj2RV0yRsymMBKcP5A8hbgvaMWChgRw/exec?email=${encodeURIComponent(email)}`;
-          } else if (tournament === "US Open") {
-            teams = usOpenTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbw4lNEjB79XT1yc1NtSJ8_hd9v9xG0oyqvEDfZGR6hYoIikQhp8ndx4KHv5cEZBPs1LCQ/exec?email=${encodeURIComponent(email)}`;
-          } else if (tournament === "The Open") {
-            teams = theOpenTeams;
-            formLink = `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(email)}`;
-          }
+            return (
+              <div
+                key={idx}
+                className={`team-card ${isCurrent ? "glow-border" : ""}`}
+              >
+                <h3 style={{ color: "#FFD700", marginBottom: "0.25rem" }}>{t}</h3>
+                <p style={{ fontSize: "0.9rem", color: "#aaa", marginBottom: "0.5rem" }}>
+                  {isCurrent ? "Current" : isClosed ? "Closed" : "Upcoming"}
+                </p>
 
-          const status = tournamentStatuses[tournament];
-
-          return (
-            <div
-              key={idx}
-              className={
-                status === "current"
-                  ? "glow-border team-card"
-                  : "team-card"
-              }
-              style={styles.card}
-            >
-              <h3 style={styles.cardTitle}>
-                <u>{tournament}</u>
-                {status === "current" && (
-                  <span style={styles.statusTag}>Current</span>
-                )}
-                {status === "upcoming" ? (
-                  <span style={styles.upcomingStatus}>Upcoming</span>
-                ) : now < cutoffTimes[tournament] ? (
+                {isCurrent ? (
                   <a
                     href={formLink}
                     target="_blank"
                     rel="noreferrer"
-                    style={styles.edit}
+                    style={{ fontSize: "0.9rem", color: "#00ff99", fontWeight: "bold" }}
                   >
                     Enter/Edit
                   </a>
                 ) : (
-                  <span style={styles.closed}>Entries Closed</span>
+                  <span style={{ fontSize: "0.9rem", color: "#888" }}>
+                    {isClosed ? "Entries Closed" : "Entry Not Open Yet"}
+                  </span>
                 )}
-              </h3>
-              <div className="team-row">
-                <TeamList teamName="Team 1" players={teams[1]} />
-                <TeamList teamName="Team 2" players={teams[2]} />
+
+                <div className="team-row" style={{ marginTop: "1rem" }}>
+                  <TeamList teamName="Team 1" players={teams[1]} />
+                  <TeamList teamName="Team 2" players={teams[2]} />
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p style={{ textAlign: "center", marginTop: "3rem", color: "#bbb", fontStyle: "italic" }}>
+          Please enter email above
+        </p>
+      )}
     </div>
   );
 }
@@ -223,11 +171,11 @@ export default function MyTeams() {
 function TeamList({ teamName, players }) {
   return (
     <div style={{ flex: 1 }}>
-      <p style={styles.teamLabel}>{teamName}</p>
+      <p style={{ fontWeight: "bold", color: "#4CAF50" }}>{teamName}</p>
       {players.length === 5 ? (
-        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        <ul style={{ listStyle: "none", padding: 0 }}>
           {players.map((p, i) => (
-            <li key={i} style={styles.player}>{p}</li>
+            <li key={i} style={{ color: "#ccc", marginBottom: "0.3rem" }}>{p}</li>
           ))}
         </ul>
       ) : (
@@ -236,66 +184,3 @@ function TeamList({ teamName, players }) {
     </div>
   );
 }
-
-const styles = {
-  navLink: {
-    fontSize: "0.95rem",
-    color: "#FFD700",
-    textDecoration: "none",
-    fontWeight: "600",
-    padding: "0.25rem 0.5rem",
-    border: "1px solid #FFD700",
-    borderRadius: "6px",
-    transition: "all 0.2s ease",
-  },
-  emailHeader: {
-    color: "white",
-    fontSize: "1.1rem",
-    marginBottom: "2rem",
-    fontWeight: 500,
-    textAlign: "center",
-  },
-  card: {
-    backgroundColor: "rgba(0, 0, 0, 0.65)",
-    borderRadius: "12px",
-    padding: "1.5rem",
-    margin: "0.5rem",
-  },
-  cardTitle: {
-    fontSize: "1.2rem",
-    color: "#FFD700",
-    marginBottom: "1rem",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-  },
-  statusTag: {
-    fontSize: "0.8rem",
-    color: "#00FFD0",
-  },
-  upcomingStatus: {
-    marginLeft: "auto",
-    fontSize: "0.9rem",
-    color: "#888",
-    fontStyle: "italic",
-  },
-  edit: {
-    marginLeft: "auto",
-    fontSize: "0.9rem",
-    color: "#0f0",
-  },
-  closed: {
-    marginLeft: "auto",
-    fontSize: "0.9rem",
-    color: "#f00",
-  },
-  teamLabel: {
-    fontWeight: "bold",
-    color: "#4CAF50",
-    marginBottom: "0.5rem",
-  },
-  player: {
-    color: "#ddd",
-    marginBottom: "0.3rem",
-  },
-};

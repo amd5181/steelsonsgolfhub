@@ -1,152 +1,111 @@
-import React, { useState } from "react";
-import { Routes, Route, useNavigate, Link } from "react-router-dom";
+import React, { useEffect, useState, useRef } from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
+import Home from './pages/Home';
+import MyTeams from './pages/MyTeams';
+import Leaderboards from './pages/Leaderboards';
+import LeagueHistory from './pages/LeagueHistory';
+import Settings from './pages/Settings';
 
-import Masters from "./pages/Masters";
-import USOpen from "./pages/USOpen";
-import TheOpen from "./pages/TheOpen";
-import PGA from "./pages/PGA";
-import MyTeams from "./pages/MyTeams";
-import LeagueHistory from "./pages/LeagueHistory";
-import TeamEntryForm from "./TeamEntryForm";
-import "./index.css";
+// ✅ Import the watermark image from src/assets/
+import watermark from './assets/watermark.png';
 
-function HomeWrapper() {
-  return <Home />;
-}
+function App() {
+  const [showNav, setShowNav] = useState(true);
+  const prevScrollPos = useRef(window.scrollY);
 
-function Home() {
-  const [email, setEmail] = useState("");
-  const navigate = useNavigate();
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollPos = window.scrollY;
+      const isMobile = window.innerWidth < 1024;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (email.trim()) {
-      navigate("/my-teams", { state: { email } });
-    }
-  };
-
-  const now = new Date();
-  const tournamentCutoffs = {
-    Masters:   new Date("2025-04-10T10:00:00-04:00"),
-    PGA:       new Date("2025-05-15T10:00:00-04:00"),
-    "US Open": new Date("2025-06-12T10:00:00-04:00"),
-    "The Open":new Date("2025-07-17T10:00:00-04:00"),
-  };
-  const tournamentList = Object.keys(tournamentCutoffs);
-
-  const getStatuses = () => {
-    const results = {};
-    let currentSet = false;
-    tournamentList.forEach((label) => {
-      const cutoff    = tournamentCutoffs[label];
-      const cutoff7   = new Date(cutoff.getTime() + 7 * 86400000);
-      if (now > cutoff7) {
-        results[label] = "closed";
-      } else if (!currentSet) {
-        results[label] = "current";
-        currentSet = true;
+      if (isMobile) {
+        const goingUp = prevScrollPos.current > currentScrollPos;
+        const nearTop = currentScrollPos < 10;
+        setShowNav(goingUp || nearTop);
       } else {
-        results[label] = "upcoming";
+        setShowNav(true); // Always show nav on desktop
       }
-    });
-    return results;
+
+      prevScrollPos.current = currentScrollPos;
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const backgroundStyle = {
+    backgroundImage: `url(${watermark})`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center center',
+    backgroundAttachment: 'fixed',
+    backgroundSize: 'cover',
+    position: 'fixed',
+    width: '100%',
+    height: '100%',
+    top: 0,
+    left: 0,
+    zIndex: -2
   };
-  const tournamentStatuses = getStatuses();
+
+  const overlayStyle = {
+    backgroundColor: 'rgba(0, 0, 0, 0.88)',
+    position: 'fixed',
+    width: '100%',
+    height: '100%',
+    top: 0,
+    left: 0,
+    zIndex: -1
+  };
 
   return (
-    <div className="overlay" style={{ textAlign: "center" }}>
-      {/* Header */}
-      <h1>Steel Sons Golf Hub</h1>
-      <h2>2025</h2>
+    <>
+      <div style={backgroundStyle}></div>
+      <div style={overlayStyle}></div>
 
-      {/* Email form */}
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          width: "100%",
-          maxWidth: "360px",
-          margin: "0 auto 2rem",
-        }}
-      >
-        <label htmlFor="email" style={{ display: "block", marginBottom: "0.5rem" }}>
-          My Teams
-        </label>
-        <input
-          id="email"
-          type="email"
-          placeholder="Enter email address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ margin: "0 auto", width: "100%" }}
-        />
-        <button type="submit" className="submit-button" style={{ marginTop: "1rem" }}>
-          Submit
-        </button>
-      </form>
-
-      {/* Tournament Leaderboards */}
-      <h2 className="section-title">Tournament Leaderboards</h2>
-      <div
-        className="grid-buttons"
-        style={{
-          margin: "0 auto 2rem",
-          justifyItems: "center",
-        }}
-      >
-        {tournamentList.map((label) => {
-          const status = tournamentStatuses[label];
-          return (
-            <NavLink
-              key={label}
-              label={label}
-              path={`/${label.toLowerCase().replace(" ", "-")}`}
-              status={status}
-            />
-          );
-        })}
-      </div>
-
-      {/* League History button */}
-      <div style={{ margin: "1rem auto", maxWidth: "200px" }}>
-        <Link to="/history" className="history-button">
-          League History
+      <nav className={`emoji-nav ${showNav ? 'show' : 'hide'}`}>
+        <Link to="/">
+          <div className="emoji-link">
+            🏠
+            <span className="nav-label">Home</span>
+          </div>
         </Link>
+        <Link to="/my-teams">
+          <div className="emoji-link">
+            👥
+            <span className="nav-label">My Teams</span>
+          </div>
+        </Link>
+        <Link to="/leaderboards">
+          <div className="emoji-link">
+            📊
+            <span className="nav-label">Leaderboards</span>
+          </div>
+        </Link>
+        <Link to="/league-history">
+          <div className="emoji-link">
+            🏆
+            <span className="nav-label">History</span>
+          </div>
+        </Link>
+        <Link to="/settings">
+          <div className="emoji-link">
+            ⚙️
+            <span className="nav-label">Settings</span>
+          </div>
+        </Link>
+      </nav>
+
+      <div style={{ paddingTop: '60px', position: 'relative', zIndex: 1 }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/my-teams" element={<MyTeams />} />
+          <Route path="/leaderboards" element={<Leaderboards />} />
+          <Route path="/league-history" element={<LeagueHistory />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
       </div>
-    </div>
+    </>
   );
 }
 
-function NavLink({ label, path, status = "" }) {
-  const statusText =
-    status === "current"
-      ? "Current"
-      : status === "closed"
-      ? "Closed"
-      : status === "upcoming"
-      ? "Upcoming"
-      : "";
-
-  return (
-    <Link to={path} className={`link-button ${status}`}>
-      <div style={{ textAlign: "center" }}>
-        {label}
-        {statusText && <div className="status-text">{statusText}</div>}
-      </div>
-    </Link>
-  );
-}
-
-export default function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<HomeWrapper />} />
-      <Route path="/masters"   element={<Masters />} />
-      <Route path="/us-open"   element={<USOpen />} />
-      <Route path="/the-open"  element={<TheOpen />} />
-      <Route path="/pga"       element={<PGA />} />
-      <Route path="/my-teams"  element={<MyTeams />} />
-      <Route path="/history"   element={<LeagueHistory />} />
-      <Route path="/enter/:tournament" element={<TeamEntryForm />} />
-    </Routes>
-  );
-}
+export default App;

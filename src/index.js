@@ -1,15 +1,19 @@
-// src/index.js
-import React from "react";
-import ReactDOM from "react-dom/client";
-// 👇 use HashRouter instead of BrowserRouter
-import { HashRouter } from "react-router-dom";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+import './index.css';
 
-import App from "./App";
-import "./index.css";
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+// Set the global watermark background
+document.body.style.background = "url('pitt-watermark.png') no-repeat center center fixed";
+document.body.style.backgroundSize = "cover";
+document.body.style.backgroundColor = "#1a1a1a";
+document.body.style.backgroundBlendMode = "overlay";
+
 root.render(
-  <HashRouter>
+  <BrowserRouter>
     <App />
-  </HashRouter>
+  </BrowserRouter>
 );
