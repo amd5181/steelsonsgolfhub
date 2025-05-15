@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { Link } from "react-router-dom";
 
 const TOURNAMENTS = [
   {
@@ -7,24 +6,28 @@ const TOURNAMENTS = [
     name: "Masters",
     range: "Masters Leaderboard!A1:Z1000",
     startDate: new Date("2025-04-10T09:00:00-04:00"),
+    endDate: new Date("2025-04-14T23:59:59-04:00"),
   },
   {
     key: "pga",
     name: "PGA Championship",
     range: "PGA Leaderboard!A1:Z1000",
     startDate: new Date("2025-05-15T09:00:00-04:00"),
+    endDate: new Date("2025-05-19T23:59:59-04:00"),
   },
   {
     key: "usopen",
     name: "US Open",
     range: "US Open Leaderboard!A1:Z1000",
     startDate: new Date("2025-06-12T09:00:00-04:00"),
+    endDate: new Date("2025-06-16T23:59:59-04:00"),
   },
   {
     key: "theopen",
     name: "The Open",
     range: "The Open Leaderboard!A1:Z1000",
     startDate: new Date("2025-07-17T09:00:00-04:00"),
+    endDate: new Date("2025-07-21T23:59:59-04:00"),
   },
 ];
 
@@ -41,9 +44,9 @@ export default function Leaderboards() {
 
   useEffect(() => {
     const now = new Date();
+    const current = TOURNAMENTS.find(t => now >= t.startDate && now <= t.endDate);
     const next = TOURNAMENTS.find(t => now < t.startDate) || TOURNAMENTS[TOURNAMENTS.length - 1];
-    const defaultTab = TOURNAMENTS.find(t => now >= t.startDate) || next;
-    setActiveTab(defaultTab.key);
+    setActiveTab(current ? current.key : next.key);
   }, []);
 
   useEffect(() => {
@@ -81,16 +84,17 @@ export default function Leaderboards() {
   }, [activeTab]);
 
   const tournament = TOURNAMENTS.find(t => t.key === activeTab);
-  const tournamentStarted = tournament ? new Date() >= tournament.startDate : false;
+  const now = new Date();
+  const tournamentStarted = tournament ? now >= tournament.startDate : false;
   const activeData = data[activeTab] || {};
 
   return (
-<div className="leaderboard-wrapper dark" style={{ padding: "1rem", position: "relative", zIndex: 1 }}>
-<div style={styles.tabs}>
+    <div className="leaderboard-wrapper dark" style={{ padding: "1rem", position: "relative", zIndex: 1 }}>
+      <div style={styles.tabs}>
         {TOURNAMENTS.map(t => {
-          const now = new Date();
           const isCurrent = t.key === activeTab;
-          const isPast = now > t.startDate;
+          const isOngoing = now >= t.startDate && now <= t.endDate;
+          const isPast = now > t.endDate;
           const tabStyle = {
             ...styles.tabBtn,
             ...(isCurrent
@@ -142,7 +146,7 @@ export default function Leaderboards() {
                       )}
                       <tr className="group-header border-b-yellow">
                         {(collapsed ? [0, 1, 4] : [...Array(12).keys()]).map(j => (
-                          <th key={j} className={!collapsed && [4,5,9].includes(j) ? "border-r-yellow" : ""}>
+                          <th key={j} className={!collapsed && [4, 5, 9].includes(j) ? "border-r-yellow" : ""}>
                             {activeData.mainData[1]?.[j]}
                           </th>
                         ))}
@@ -151,12 +155,12 @@ export default function Leaderboards() {
                     <tbody>
                       {activeData.mainData.slice(2).map((row, i) => {
                         const idx = i + 3;
-                        const show = !collapsed || [3,8,13,18].includes(idx) || idx % 5 === 3;
+                        const show = !collapsed || [3, 8, 13, 18].includes(idx) || idx % 5 === 3;
                         if (!show) return null;
                         return (
                           <tr key={i} className={idx === 3 || idx % 5 === 3 ? "team-divider" : ""}>
-                            {(collapsed ? [0,1,4] : [...Array(12).keys()]).map(j => (
-                              <td key={j} className={!collapsed && [4,5,9].includes(j) ? "border-r-yellow" : ""}>
+                            {(collapsed ? [0, 1, 4] : [...Array(12).keys()]).map(j => (
+                              <td key={j} className={!collapsed && [4, 5, 9].includes(j) ? "border-r-yellow" : ""}>
                                 {row[j]}
                               </td>
                             ))}
@@ -176,7 +180,7 @@ export default function Leaderboards() {
                   <tr><th>Current Top 10</th><th>Score</th></tr>
                 </thead>
                 <tbody>
-                  {activeData.sideData?.map((r,i) => (
+                  {activeData.sideData?.map((r, i) => (
                     <tr key={i}><td>{r[0]}</td><td>{r[1]}</td></tr>
                   ))}
                 </tbody>
