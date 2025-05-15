@@ -6,25 +6,25 @@ const TOURNAMENTS = [
     key: "masters",
     name: "Masters",
     range: "Masters Leaderboard!A1:Z1000",
-    startDate: new Date("2025-04-10T10:00:00-04:00"),
+    startDate: new Date("2025-04-10T09:00:00-04:00"),
   },
   {
     key: "pga",
     name: "PGA Championship",
     range: "PGA Leaderboard!A1:Z1000",
-    startDate: new Date("2025-05-15T10:00:00-04:00"),
+    startDate: new Date("2025-05-15T09:00:00-04:00"),
   },
   {
     key: "usopen",
     name: "US Open",
     range: "US Open Leaderboard!A1:Z1000",
-    startDate: new Date("2025-06-12T10:00:00-04:00"),
+    startDate: new Date("2025-06-12T09:00:00-04:00"),
   },
   {
     key: "theopen",
     name: "The Open",
     range: "The Open Leaderboard!A1:Z1000",
-    startDate: new Date("2025-07-17T10:00:00-04:00"),
+    startDate: new Date("2025-07-17T09:00:00-04:00"),
   },
 ];
 
