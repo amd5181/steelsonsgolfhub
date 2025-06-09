@@ -38,8 +38,9 @@ export default function LeagueHistory() {
     .slice(0, 3);
 
   return (
-<div style={{ ...styles.page, position: "relative", zIndex: 1 }}>
-<div style={styles.backLink}>
+    <div style={{ ...styles.page, position: "relative", zIndex: 1 }}>
+      <div style={styles.backLink}>
+        {/* your back link here */}
       </div>
 
       <h1 style={styles.header}>Hall of Champions</h1>
@@ -75,22 +76,37 @@ export default function LeagueHistory() {
       </div>
 
       <div style={styles.grid}>
-        {cards.map((card, i) => (
-          <div key={i} style={styles.card}>
-            <h2 style={styles.year}>{card.year} – Masters</h2>
-            <ol style={styles.list}>
-              <li>🥇 {card.gold}</li>
-              <li>🥈 {card.silver}</li>
-              <li>🥉 {card.bronze}</li>
-            </ol>
-          </div>
-        ))}
+        {cards.map((card, i) => {
+          // default tournament to "Masters" if none provided
+          const { year, gold, silver, bronze, tournament = "Masters" } = card;
+          return (
+            <div key={i} style={styles.card}>
+              <h2 style={styles.year}>
+                {year} – {tournament}
+              </h2>
+              <ol style={styles.list}>
+                <li>🥇 {gold}</li>
+                <li>🥈 {silver}</li>
+                <li>🥉 {bronze}</li>
+              </ol>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 const cards = [
+  // ← new PGA Championship entry added here:
+  {
+    year: "2025",
+    tournament: "PGA Championship",
+    gold: "Bill Moser",
+    silver: "Keith Plocki",
+    bronze: "Toby Cressman",
+  },
+  // existing Masters history:
   { year: "2025", gold: "Justin Blazel", silver: "Carson Custer", bronze: "Toby Cressman" },
   { year: "2024", gold: "Andy Albert", silver: "Ian Very", bronze: "Matt Walker" },
   { year: "2023", gold: "Andrew David", silver: "Colin Scarola", bronze: "Justin Rosenthal" },
@@ -100,7 +116,7 @@ const cards = [
   { year: "2019", gold: "Carson Custer", silver: "Mike Zalac", bronze: "Matt Ward" },
   { year: "2018", gold: "Carson Custer", silver: "Matt Hill", bronze: "Carson Custer" },
   { year: "2017", gold: "Sam Lanzino", silver: "Matt Hill", bronze: "Aaron Levine" },
-  { year: "2016", gold: "Dylan Frank", silver: "Andrew David", bronze: "Curtis David" }
+  { year: "2016", gold: "Dylan Frank", silver: "Andrew David", bronze: "Curtis David" },
 ];
 
 const styles = {
@@ -172,7 +188,7 @@ const styles = {
     borderRadius: "0.75rem",
     padding: "1rem",
     backdropFilter: "blur(6px)",
-    boxShadow: "0 4px 10px rgba(255, 255, 0, 0.08)",
+    boxShadow: "0 4px 10px rgba(255, 0, 0, 0.08)",
     transition: "transform 0.2s ease, box-shadow 0.2s ease",
   },
   year: {
