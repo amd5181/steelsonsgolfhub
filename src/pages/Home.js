@@ -6,26 +6,26 @@ function Home() {
     {
       name: "Masters",
       startDate: "April 10, 2025",
-      deadline: "April 10, 2025 – 10:00 AM ET",
-      dateValue: new Date("2025-04-10T10:00:00")
+      deadline: "April 10, 2025 – 08:00 AM ET",
+      dateValue: new Date("2025-04-10T08:00:00")
     },
     {
       name: "PGA Championship",
       startDate: "May 15, 2025",
-      deadline: "May 15, 2025 – 10:00 AM ET",
-      dateValue: new Date("2025-05-15T10:00:00")
+      deadline: "May 15, 2025 – 08:00 AM ET",
+      dateValue: new Date("2025-05-15T08:00:00")
     },
     {
       name: "US Open",
       startDate: "June 12, 2025",
-      deadline: "June 12, 2025 – 10:00 AM ET",
-      dateValue: new Date("2025-06-12T10:00:00")
+      deadline: "June 12, 2025 – 08:00 AM ET",
+      dateValue: new Date("2025-06-12T08:00:00")
     },
     {
       name: "The Open",
       startDate: "July 17, 2025",
-      deadline: "July 17, 2025 – 10:00 AM ET",
-      dateValue: new Date("2025-07-17T10:00:00")
+      deadline: "July 17, 2025 – 03:00 AM ET",
+      dateValue: new Date("2025-07-17T03:00:00")
     }
   ];
 
