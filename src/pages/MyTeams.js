@@ -19,8 +19,8 @@ export default function MyTeams() {
   const cutoffTimes = {
     Masters: new Date("2025-04-10T10:00:00-04:00"),
     PGA: new Date("2025-05-15T10:00:00-04:00"),
-    "US Open": new Date("2025-06-12T10:00:00-04:00"),
-    "The Open": new Date("2025-07-17T10:00:00-04:00"),
+    "US Open": new Date("2025-06-12T09:00:00-04:00"),
+    "The Open": new Date("2025-07-17T05:00:00-04:00"),
   };
 
   useEffect(() => {
