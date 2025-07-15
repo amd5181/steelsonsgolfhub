@@ -123,7 +123,7 @@ export default function MyTeams() {
             } else if (t === "US Open") {
               formLink = `https://script.google.com/macros/s/AKfycbw4lNEjB79XT1yc1NtSJ8_hd9v9xG0oyqvEDfZGR6hYoIikQhp8ndx4KHv5cEZBPs1LCQ/exec?email=${encodeURIComponent(currentEmail)}`;
             } else if (t === "The Open") {
-              formLink = `https://script.google.com/macros/s/AKfycbzYjy4SprXytEFAYM8WDXlXOYMH7I9d0Obl2aCxxhnq7hBW8frg61I_cn72SE-TWjaKMg/exec?email=${encodeURIComponent(currentEmail)}`;
+              formLink = `https://script.google.com/macros/s/AKfycbw_Jjq4oPB1AwXoCYOgjNCrLQOGAfrfCg0x6sEA-NP8wQfXnOiibr5_DQrEw6FcRnEASw/exec?email=${encodeURIComponent(currentEmail)}`;
             }
 
             return (
