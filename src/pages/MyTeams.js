@@ -57,7 +57,7 @@ export default function MyTeams() {
         setUsOpenTeams
       );
       fetchTeams(
-        `https://script.google.com/macros/s/AKfycbxvrk7mewm9tXV4Z7lHj1E_SieONu4EhEebbytmpQ1yeVvWXBTz181wXrLftgHMhm5yAQ/exec?email=${encodeURIComponent(currentEmail)}&mode=json`,
+        `https://script.google.com/macros/s/AKfycbzYjy4SprXytEFAYM8WDXlXOYMH7I9d0Obl2aCxxhnq7hBW8frg61I_cn72SE-TWjaKMg/exec?email=${encodeURIComponent(currentEmail)}&mode=json`,
         setTheOpenTeams
       );
     }
