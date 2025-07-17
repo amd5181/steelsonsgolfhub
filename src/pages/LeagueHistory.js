@@ -98,7 +98,14 @@ export default function LeagueHistory() {
 }
 
 const cards = [
-  // ← new PGA Championship entry added here:
+  // ← new US Open entry added here:
+  {
+    year: "2025",
+    tournament: "US Open",
+    gold: "Paul Del Presto",
+    silver: "Alan McBride",
+    bronze: "Justin Malago",
+  },
   {
     year: "2025",
     tournament: "PGA Championship",
