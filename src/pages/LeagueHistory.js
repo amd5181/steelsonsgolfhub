@@ -98,7 +98,13 @@ export default function LeagueHistory() {
 }
 
 const cards = [
-  // ← new US Open entry added here:
+  {
+    year: "2025",
+    tournament: "The Open",
+    gold: "Dat Boy",
+    silver: "Keith Plocki",
+    bronze: "Bill Moser",
+  },
   {
     year: "2025",
     tournament: "US Open",
@@ -112,13 +118,6 @@ const cards = [
     gold: "Bill Moser",
     silver: "Keith Plocki",
     bronze: "Toby Cressman",
-  },
-  {
-    year: "2025",
-    tournament: "The Open",
-    gold: "Dat Boy",
-    silver: "Keith Plocki",
-    bronze: "Bill Moser",
   },
   // existing Masters history:
   { year: "2025", gold: "Justin Blazel", silver: "Carson Custer", bronze: "Toby Cressman" },
