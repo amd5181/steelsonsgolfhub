@@ -113,6 +113,13 @@ const cards = [
     silver: "Keith Plocki",
     bronze: "Toby Cressman",
   },
+  {
+    year: "2025",
+    tournament: "The Open",
+    gold: "Dat Boy",
+    silver: "Keith Plocki",
+    bronze: "Bill Moser",
+  },
   // existing Masters history:
   { year: "2025", gold: "Justin Blazel", silver: "Carson Custer", bronze: "Toby Cressman" },
   { year: "2024", gold: "Andy Albert", silver: "Ian Very", bronze: "Matt Walker" },
@@ -125,6 +132,7 @@ const cards = [
   { year: "2017", gold: "Sam Lanzino", silver: "Matt Hill", bronze: "Aaron Levine" },
   { year: "2016", gold: "Dylan Frank", silver: "Andrew David", bronze: "Curtis David" },
 ];
+
 
 const styles = {
   page: {
